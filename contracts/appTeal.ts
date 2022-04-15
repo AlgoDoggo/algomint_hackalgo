@@ -1,24 +1,30 @@
-import { tinyValidatorApp } from "../constants/constants";
-import { tinyQuoteTeal } from "./tinyQuoteTeal";
+import { algofiQuoteTeal } from "./algofiQuoteTeal.js";
+import { optIn } from "./branches/optIn.js";
+import { tinyQuoteTeal } from "./tinyQuoteTeal.js";
 
 
 interface App {
-  ({}: {
-    
-  }): string;
+  (): string;
 }
 
-export const appTeal : App = ({
- 
-}) => `
+export const appTeal : App = () => `
 // scratch space :
 // 1 : asset-in ID, 0 if algo
 // 2 : asset-in amount
 // 3 : asset-out ID
+
+// tinyman
 // 4 : asset-in supply in Tiny pool
 // 5 : asset-out supply in Tiny pool
-
 // 6 : Asset-out amount with Tinyman
+
+// algofi
+// 7 : asset-in supply in algofi pool
+// 8 : asset-out supply in algofi pool
+// 9 : Asset-out amount with algofi
+// 10 : algofi Pool fee either 9925 or 9975
+
+// 11 : opt-in loop
 
 #pragma version 6
 
@@ -46,6 +52,12 @@ txn OnCompletion
 int OptIn
 ==
 bnz allow
+
+// Allow bootstrap
+txna ApplicationArgs 0
+byte "optIn"
+==
+bnz optIn
 
 //Making sure the assets or algos are coming to this account
 global CurrentApplicationAddress
@@ -78,6 +90,7 @@ store 2
 
 // store asset-out ID
 txna ApplicationArgs 0
+btoi
 dup
 store 3
 load 1
@@ -86,24 +99,14 @@ assert // check asset-in is not asset-out !
 
 ${tinyQuoteTeal}
 
+${algofiQuoteTeal}
 
-err
-
-
-// branches
-
-
-//common subroutines
-
-
-
-// end of program
-
-// Checking fees is necessary for metaswap and metazap only
-checkFees: 
-${checkFeesTeal}  
 
 allow:
 int 1
+return
+
+optIn:
+${optIn}
 
 `;

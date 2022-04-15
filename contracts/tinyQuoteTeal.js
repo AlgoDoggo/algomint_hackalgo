@@ -1,7 +1,7 @@
 export const tinyQuoteTeal = `
 
 // check price on Tinyman
-// first let's fetch the pool amounts and substract the redeem amounts in pool local state
+// first let's fetch the pool suplly amounts and substract the redeem amounts in pool local state
 
 // get asset-in balance in tiny pool
 load 1
@@ -23,7 +23,7 @@ balance // algo balance
 tiny_assetIn_getOutstanding:
 // get outsanding algo balance in tiny pool
 txna Accounts 1
-int ${tinyValidatorApp}
+txna Applications 1 // tinyman validator app
 byte "o"
 load 1
 itob
@@ -54,7 +54,7 @@ balance // algo balance
 tiny_assetOut_getOutstanding:
 // get outstanding amount in tiny pool local state
 txna Accounts 1
-int ${tinyValidatorApp}
+txna Applications 1 // tinyman validator app
 byte "o"
 load 3
 itob
@@ -67,18 +67,28 @@ store 5 // asset1 supply Tiny pool
 
 // amount_out = (asset_in_amount * 997 * asset_out_supply) / ((asset_in_supply * 1000) + (asset_in_amount * 997))
 load 2
-997
+int 997
 *
 load 5
 mulw
 load 4
-1000
+int 1000
 *
 load 2
-997
+int 997
 *
 addw
-divw
-store 6
+divmodw
+pop
+pop
+swap
+pop
+dup
+store 6 // Asset-out amount with Tinyman
+itob
+byte "TinymanAmount "
+swap
+concat
+log
 
 `

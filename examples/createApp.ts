@@ -14,35 +14,18 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { appTeal } from "../contracts/appTeal.js";
-import {
-  assetID,
-  stable1_stable2_app,
-  managerID_nanoswap,
-  lTNano,
-  stable2,
-  stable1,
-  nanopool_address,
-} from "../constants/constants.js";
+import { USDC } from "../constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
-  const algodClient = setupClient();
+  const algodClient = await setupClient();
   const suggestedParams = await algodClient.getTransactionParams().do();
 
-  const compileApp = await algodClient
-    .compile(
-      appTeal({
-        assetID: assetID,
-        stable1: stable1,
-        stable2: stable2,
-        lTNano: lTNano,
-        stable1Stable2AppId: stable1_stable2_app,
-        stable1Stable2AppAddress: nanopool_address,
-        managerID_nanoswap: managerID_nanoswap,
-      })
-    )
-    .do();
+  suggestedParams.flatFee = true;
+  suggestedParams.fee = 1000;
+
+  const compileApp = await algodClient.compile(appTeal()).do();
 
   const clearState = fs.readFileSync(new URL("../contracts/clearProg.teal", import.meta.url), "utf8");
   const compiledClearProg = await algodClient.compile(clearState).do();
@@ -53,7 +36,7 @@ const createApp = async () => {
     approvalProgram: new Uint8Array(Buffer.from(compileApp.result, "base64")),
     clearProgram: new Uint8Array(Buffer.from(compiledClearProg.result, "base64")),
     numGlobalByteSlices: 0,
-    numGlobalInts: 2,
+    numGlobalInts: 0,
     numLocalByteSlices: 0,
     numLocalInts: 0,
     onComplete: OnApplicationComplete.NoOpOC,
@@ -66,46 +49,27 @@ const createApp = async () => {
   console.log("Created metapool app: ", appId);
 
   // bootstrap it
-  //const appId = 82478041
   const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({
-    suggestedParams: {
-      ...suggestedParams,
-      flatFee: true,
-      fee: 6000,
-    },
+    suggestedParams,
     from: account.addr,
     to: getApplicationAddress(appId),
     amount: 10 ** 6,
   });
 
   const appBootstrap = makeApplicationNoOpTxnFromObject({
-    suggestedParams,
+    suggestedParams: {
+      ...suggestedParams,
+      fee: suggestedParams.fee * 2,
+    },
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [stable1, stable2, lTNano, assetID],
-    appArgs: [new Uint8Array(Buffer.from("bootstrap", "utf-8"))],
+    foreignAssets: [USDC],
+    appArgs: [new Uint8Array(Buffer.from("optIn", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];
   assignGroupID(transactions);
   let bootstrapSigned = transactions.map((t) => signTransaction(t, account.sk));
-  const txIdAppCall = bootstrapSigned[1].txID;
   await algodClient.sendRawTransaction(bootstrapSigned.map((t) => t.blob)).do();
-  transactionResponse = await waitForConfirmation(algodClient, txIdAppCall, 5);
-  const { ["asset-index"]: metapoolLT } = transactionResponse["inner-txns"].find((e) => e["asset-index"]);
-  console.log("Created Metapool liquity token: ", metapoolLT);
-
-  const optIn = makeAssetTransferTxnWithSuggestedParamsFromObject({
-    suggestedParams,
-    from: account.addr,
-    assetIndex: metapoolLT,
-    to: account.addr,
-    amount: 0,
-  });
-
-  const optInSigned = optIn.signTxn(account.sk);
-  await algodClient.sendRawTransaction(optInSigned).do();
-
-  console.log("successfully opted-in metapool liquidity token");
 };
 
 createApp().catch((error) => console.log(error.message));

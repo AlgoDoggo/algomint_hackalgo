@@ -6,11 +6,17 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.ts"
+    "create-app": "ts-node ./examples/createApp.ts",
+    "start": "nodemon ./examples/smartRoute.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@pactfi/pactsdk": "^0.2.1",
+    "algosdk": "^1.15.0",
+    "axios": "^0.26.1"
+  },
   "devDependencies": {
     "@types/node": "^17.0.24",
     "@types/nodemon": "^1.19.1",
@@ -18,10 +24,5 @@
     "nodemon": "^2.0.15",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
-  },
-  "dependencies": {
-    "@pactfi/pactsdk": "^0.2.1",
-    "algosdk": "^1.15.0",
-    "axios": "^0.26.1"
   }
 }
