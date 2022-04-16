@@ -11,13 +11,14 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import { setupClient } from "../src/adapters/algoD.js";
-import { algofi, algofiApp, pact, pactfiApp, routerApp, tinyman, tinyValidatorApp, USDC } from "../src/constants/constants.js";
+import { algofi, algofiApp, pact, pactfiApp, routerApp, tinyman, tinyValidatorApp, tmpool, USDC } from "../src/constants/constants.js";
 import dotenv from "dotenv";
 import swapAlgofi from "../src/helpers/swapAlgofi.js";
 import swapPactfi from "../src/helpers/swapPactfi.js";
+import swapTinyman from "../src/helpers/swapTinyman.js";
 dotenv.config();
 
-const smartRoute = async ({ amount = 1000, assetIn = 0, assetOut = USDC, algofiFee = 75 ,pactfiFee = 30}) => {
+const smartRoute = async ({ amount = 100, assetIn = 0, assetOut = USDC, algofiFee = 75 ,pactfiFee = 30}) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
 
   let algodClient = await setupClient();
@@ -70,7 +71,8 @@ const smartRoute = async ({ amount = 1000, assetIn = 0, assetOut = USDC, algofiF
   console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
   
   //swapAlgofi({assetIn, amount, app: algofiApp ,suggestedParams,assetOut})
-  swapPactfi({assetIn, amount, app: pactfiApp ,suggestedParams,assetOut})
+  swapTinyman({ assetIn, amount, suggestedParams, tinypool: tinyman, assetOut, tmpool, minAmountOut: logs[1] }).catch((err) => console.log(err.message))
+  //swapPactfi({assetIn, amount, app: pactfiApp ,suggestedParams,assetOut})
 };
 export default smartRoute;
 
