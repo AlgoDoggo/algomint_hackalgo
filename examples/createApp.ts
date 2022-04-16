@@ -1,4 +1,4 @@
-import { setupClient } from "../adapters/algoD.js";
+import { setupClient } from "../src/adapters/algoD.js";
 import fs from "fs";
 import {
   assignGroupID,
@@ -14,7 +14,7 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { appTeal } from "../contracts/appTeal.js";
-import { USDC } from "../constants/constants.js";
+import { USDC } from "../src/constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {
@@ -63,7 +63,7 @@ const createApp = async () => {
     },
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [USDC, 54215619, 77279142],
+    foreignAssets: [USDC, 54215619],
     appArgs: [new Uint8Array(Buffer.from("optIn", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];

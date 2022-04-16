@@ -1,5 +1,6 @@
 import { algofiQuoteTeal } from "./algofiQuoteTeal.js";
 import { optIn } from "./branches/optIn.js";
+import { pactfiQuote } from "./pactfiQuote.js";
 import { tinyQuoteTeal } from "./tinyQuoteTeal.js";
 
 
@@ -25,6 +26,12 @@ export const appTeal : App = () => `
 // 10 : algofi Pool fee either 9925 or 9975
 
 // 11 : opt-in loop
+
+// pactfi
+// 12 : asset-in supply in pactfi pool
+// 13 : asset-out supply in pactfi pool
+// 14 : Asset-out amount with pactfi
+// 15 : pactfi Pool fee, usually 9970 (0.3%)
 
 #pragma version 6
 
@@ -101,6 +108,38 @@ ${tinyQuoteTeal}
 
 ${algofiQuoteTeal}
 
+${pactfiQuote}
+
+itxn_begin
+
+load 1 // ID of asset-out
+bz send_back_algos
+
+int axfer
+itxn_field TypeEnum
+load 1 
+itxn_field XferAsset
+load 2 // amount of asset-in
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetReceiver
+
+b finish_redeem
+
+send_back_algos:
+
+int pay
+itxn_field TypeEnum
+load 2 // amount of asset-in
+itxn_field Amount
+txn Sender
+itxn_field Receiver
+
+finish_redeem:
+int 0
+itxn_field Fee
+
+itxn_submit
 
 allow:
 int 1

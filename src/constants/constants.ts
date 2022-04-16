@@ -1,7 +1,7 @@
 // TESTNET
 
 // smart routing app
-export const routerApp = 84091895
+export const routerApp = 84201584
 
 //const USDC = 51435943
 export const USDC = 10458941
@@ -14,9 +14,11 @@ export const tinyman = "JOEPFUDG7NS4EEUM7WZW7GA6VLD3STS5DDCJWKSGB2QLHIWDF2CJMXEF
 
 //pool apps
 
-export const appPact = 57986097
+export const pactfiApp = 57986097
 export const algofiApp = 71229194
 
 // manager apps
 
 export const tinyValidatorApp = 62368684
+export const managerID_dex = 66008735;
+export const managerID_nanoswap = 77282916;
