@@ -86,9 +86,8 @@ pop
 dup
 store 6 // Asset-out amount with Tinyman
 itob
-byte "TinymanAmount "
-swap
-concat
+byte "Tinyman"
+log
 log
 
 `

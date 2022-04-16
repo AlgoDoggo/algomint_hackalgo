@@ -56,10 +56,8 @@ pop
 dup
 store 9 // Asset-out amount with Algofi
 itob
-byte "AlgofiAmount "
-swap
-concat
+byte "Algofi"
 log
-
+log
 
 `

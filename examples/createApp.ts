@@ -59,11 +59,11 @@ const createApp = async () => {
   const appBootstrap = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...suggestedParams,
-      fee: suggestedParams.fee * 2,
+      fee: suggestedParams.fee * 4,
     },
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [USDC],
+    foreignAssets: [USDC, 54215619, 77279142],
     appArgs: [new Uint8Array(Buffer.from("optIn", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];
