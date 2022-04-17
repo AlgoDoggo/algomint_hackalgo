@@ -6,4 +6,9 @@ dotenv.config();
 const asset1=0
 const asset2=USDC
 
-await getAccounts({asset1, asset2}).catch(err=>console.log(err.message))
+const assets = [asset1,asset2];
+assets.sort((a, b) => a - b);
+
+
+
+await getAccounts(assets).catch(err=>console.log(err.message))

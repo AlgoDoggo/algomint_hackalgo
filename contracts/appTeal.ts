@@ -33,6 +33,8 @@ export const appTeal : App = () => `
 // 14 : Asset-out amount with pactfi
 // 15 : pactfi Pool fee, usually 9970 (0.3%)
 
+// 16 : best quote: either "Tinyman", "Algofi", "Pactfi"
+
 #pragma version 6
 
 
@@ -110,6 +112,35 @@ ${algofiQuoteTeal}
 
 ${pactfiQuote}
 
+// Which one is the best quote ?
+
+byte "Tinyman"
+byte "Algofi"
+load 9
+load 6
+>
+select // either tinyman or algofi on stack
+byte "Pactfi"
+load 14
+load 9
+load 6
+dig 4 // either tinyman or algofi
+byte "Tinyman"
+==
+select // now either load 6 or 9 on stack
+>
+select
+dup
+store 16
+byte "Best quote from: "
+swap
+concat
+log
+
+
+// Here since i can't do the swap onchain because of current limitations on
+// Tinyman, Algofi and Pacti contract, I am going to send the asset back to the user
+// and do the swap in the front-end instead
 itxn_begin
 
 load 1 // ID of asset-out

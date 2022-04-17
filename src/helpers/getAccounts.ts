@@ -1,9 +1,33 @@
 import pactsdk, { PactClient } from "@pactfi/pactsdk";
-import algosdk, { decodeUint64, getApplicationAddress } from "algosdk";
+import algosdk, { decodeUint64, getApplicationAddress, LogicSigAccount } from "algosdk";
+import { spawn } from "child_process";
 import { setupClient } from "../adapters/algoD.js";
-import { algofiApp, pactfiApp } from "../constants/constants.js";
+import { pactfiApp, tinyValidatorApp } from "../constants/constants.js";
 
-const getAccounts = async ({ asset1, asset2 }) => {
+const tinyUrl = "https://testnet.analytics.tinyman.org/api/v1/assets/?is_pool_member=true&limit=all&verified_only=false"
+
+const getAccounts = async (assets: number[]) => {
+
+  try {
+    const {data}
+  } catch (error) {
+    
+  }
+
+  const python = spawn("python",[`src/utils/tinyPoolGen.py`, tinyValidatorApp.toString(), assets[0].toString(),assets[1].toString()]);
+let algodClient =await setupClient()
+ 
+  
+
+
+  python.stdout.on('data', (data) => {
+    const parsed = JSON.parse(data.toString())   
+    const lsig = new LogicSigAccount(new Uint8Array(parsed));
+    const address = lsig.address() 
+    console.log(address)
+});
+
+  return
     // const config = "AAAAAAAAAAAAAAAAKWQzgQAAAAAAAAAe"
     // function decodeUint64Array(data: string): number[] {
     //     const buffer = Buffer.from(data, "base64");

@@ -18,7 +18,7 @@ import swapPactfi from "../src/helpers/swapPactfi.js";
 import swapTinyman from "../src/helpers/swapTinyman.js";
 dotenv.config();
 
-const smartRoute = async ({ amount = 100, assetIn = 0, assetOut = USDC, algofiFee = 75 ,pactfiFee = 30}) => {
+const smartRoute = async ({ amount = 100, assetIn = USDC, assetOut = 0, algofiFee = 75 ,pactfiFee = 30}) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
 
   let algodClient = await setupClient();
@@ -69,7 +69,7 @@ const smartRoute = async ({ amount = 100, assetIn = 0, assetOut = USDC, algofiFe
   );
   console.log(`Here is your quote for ${amount} of your asset against asset n°${assetOut}`)
   console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
-  
+  console.log(logs[6])
   //swapAlgofi({assetIn, amount, app: algofiApp ,suggestedParams,assetOut})
   swapTinyman({ assetIn, amount, suggestedParams, tinypool: tinyman, assetOut, tmpool, minAmountOut: logs[1] }).catch((err) => console.log(err.message))
   //swapPactfi({assetIn, amount, app: pactfiApp ,suggestedParams,assetOut})
