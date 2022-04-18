@@ -11,14 +11,14 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import { setupClient } from "../src/adapters/algoD.js";
-import { algofi, algofiApp, pact, pactfiApp, routerApp, tinyman, tinyValidatorApp, tmpool, USDC } from "../src/constants/constants.js";
+import { algofi, algofiApp, pact, pactfiApp, routerApp,  tinyValidatorApp,  USDC } from "../src/constants/constants.js";
 import dotenv from "dotenv";
 import swapAlgofi from "../src/helpers/swapAlgofi.js";
 import swapPactfi from "../src/helpers/swapPactfi.js";
 import swapTinyman from "../src/helpers/swapTinyman.js";
 dotenv.config();
 
-const smartRoute = async ({ amount = 100, assetIn = USDC, assetOut = 0, algofiFee = 75 ,pactfiFee = 30}) => {
+const smartRoute = async ({amount = 100, assetIn = USDC, assetOut = 0, algofiFee = 75 ,pactfiFee = 30, tinyPool,tinyLT}) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
 
   let algodClient = await setupClient();
@@ -53,27 +53,25 @@ const smartRoute = async ({ amount = 100, assetIn = USDC, assetOut = 0, algofiFe
     // asset-out ID, 0 if algo, algofi fee (25 or 75)
     appArgs: [encodeUint64(assetOut), encodeUint64(algofiFee),encodeUint64(pactfiFee)],
     // tinyman, algofi, pactfi
-    accounts: [tinyman, algofi, pact],
+    accounts: [tinyPool, algofi, pact],
     // asset-in && asset-out
     foreignAssets: [USDC],
     foreignApps: [tinyValidatorApp, algofiApp, pactfiApp],
   });
 
   const transactions = [tx0, tx1];
-  assignGroupID(transactions);
-  const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
-  await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
-  const transactionResponse = await waitForConfirmation(algodClient, signedTxs[1].txID, 5);
-  const logs = transactionResponse?.logs?.map((l, i) =>
-    i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
-  );
-  console.log(`Here is your quote for ${amount} of your asset against asset n°${assetOut}`)
-  console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
-  console.log(logs[6])
+  // assignGroupID(transactions);
+  // const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
+  // await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
+  // const transactionResponse = await waitForConfirmation(algodClient, signedTxs[1].txID, 5);
+  // const logs = transactionResponse?.logs?.map((l, i) =>
+  //   i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
+  // );
+  // console.log(`Here is your quote for ${amount} of your asset against asset n°${assetOut}`)
+  // console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
+  // console.log(logs[6])
   //swapAlgofi({assetIn, amount, app: algofiApp ,suggestedParams,assetOut})
-  swapTinyman({ assetIn, amount, suggestedParams, tinypool: tinyman, assetOut, tmpool, minAmountOut: logs[1] }).catch((err) => console.log(err.message))
+  swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10})
   //swapPactfi({assetIn, amount, app: pactfiApp ,suggestedParams,assetOut})
 };
 export default smartRoute;
-
-smartRoute({}).catch((err) => console.log(err.message));

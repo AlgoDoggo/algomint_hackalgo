@@ -67,6 +67,6 @@ const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
   const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: amountOut, amt: algoOut, xaid } = innerTX[0]?.txn;
-  console.log(`Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${xaid ? `token n°${xaid}` : "Algos"}`);
+  console.log(`Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${xaid ? `token n°${xaid}` : "microAlgos"}`);
 };
 export default swapPactfi;
