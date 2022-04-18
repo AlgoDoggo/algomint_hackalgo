@@ -95,8 +95,8 @@ const smartRoute: smartRoute = async ({
   );
   console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
   console.log(logs[6]);
-  await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
-  await swapAlgofi({ assetIn, amount, app: algofi.app, suggestedParams, assetOut, minAmountOut: 10 });
+  //await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
+  //await swapAlgofi({ assetIn, amount, app: algofi.app, suggestedParams, assetOut, minAmountOut: 10 });
   await swapPactfi({ assetIn, amount, app: pactfi.app, suggestedParams, assetOut, minAmountOut: 10 });
 };
 export default smartRoute;

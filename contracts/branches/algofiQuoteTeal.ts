@@ -4,7 +4,7 @@ export const algofiQuoteTeal = `
 // Let's fetch the pool supply
 
 // get asset-in supply
-int 2 // the first algofi app is at index 2
+int 2 // the algofi app is at index 2
 txnas Applications
 dup // leave one on stack for next paragraph
 byte "b1"
@@ -29,26 +29,24 @@ app_global_get_ex
 pop
 store 8
 
-// algofi pools have 2 types of fee 75 or 25, I'm sending it in appargs
-int 10000
-int 1 // algofi pool fee is at index 1 of app args
-txnas ApplicationArgs
-btoi
--
-dup
-store 10
-
-// amount_out = ((9925 || 9975) * asset_in_amount * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * (9925 || 9975)))
+//swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * swapFee) + 1)
 load 2
+dup
+txna ApplicationArgs 1 // algofi pools have 3 types of fee, 10 (0.1%), 25 (0.25%) or 75 (0.75%)
+btoi
 *
+int 10000
+/
+int 1
++
+- // swapInAmountLessFees
+dup
+// amount_out = (assetOutSupply * swapInAmountLessFees) / (assetInSupply + swapInAmountLessFees)
+
 load 8
 mulw
 load 7
-int 10000
-*
-load 2
-load 10
-*
+uncover 3 
 addw
 divmodw
 pop
