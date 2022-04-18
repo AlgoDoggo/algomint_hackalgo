@@ -20,5 +20,5 @@ try {
   //throw "ds"
   await smartRoute({ ...accounts, ...swapParams });
 } catch (error) {
-  console.error(error);
+  console.error(error.message);
 }

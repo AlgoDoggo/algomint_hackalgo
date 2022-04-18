@@ -46,7 +46,7 @@ const createApp = async () => {
   let { txId } = await algodClient.sendRawTransaction(txSigned).do();
   let transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const appId = transactionResponse["application-index"];
-  console.log("Created metapool app: ", appId);
+  console.log("Created router app: ", appId);
 
   // bootstrap it
   const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({

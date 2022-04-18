@@ -64,18 +64,7 @@ const smartRoute: smartRoute = async ({
       assetIndex: assetIn,
     });
   }
-
-  let accounts = [tinyPool], foreignApps = [tinyValidatorApp], fee :Uint8Array[] = []
-  for (let i = 0; i < algofi.length; i+=1) {
-    accounts.push(getApplicationAddress(algofi[i].app))
-    foreignApps.push(algofi[i].app)
-    fee.push(encodeUint64(algofi[i].fee))
-  }
-  for (let i = 0; i < pactfi.length; i+=1) {
-    accounts.push(getApplicationAddress(pactfi[i].app))
-    foreignApps.push(pactfi[i].app)
-    fee.push(encodeUint64(pactfi[i].fee))
-  }
+ 
   const tx1 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...suggestedParams,
@@ -85,16 +74,15 @@ const smartRoute: smartRoute = async ({
     appIndex: routerApp,    
     appArgs: [
       encodeUint64(assetOut), // asset-out ID - 0 if algo  
-      encodeUint64(algofi.length), // number of algofi pools to check
-      encodeUint64(pactfi.length), // number of pactif pools to check
-      ...fee // algofi and pactfi fees for the respoective pools
+      encodeUint64(algofi.fee), // 10, 25 or 75
+      encodeUint64(pactfi.fee), // any number between 1-100      
     ],
     // tinyman, algofi, pactfi
-    accounts,
+    accounts: [tinyPool,getApplicationAddress(algofi.app) ,getApplicationAddress(pactfi.app)],
     // asset-in && asset-out
     foreignAssets: [USDC],
     // tinyman, algofi, pactfi
-    foreignApps,
+    foreignApps: [tinyValidatorApp,algofi.app,pactfi.app],
   });
   const transactions = [tx0, tx1];
   assignGroupID(transactions);

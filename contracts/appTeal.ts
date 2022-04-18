@@ -19,7 +19,6 @@ export const appTeal = () : string => `
 // 8 : asset-out supply in algofi pool
 // 9 : Asset-out amount with algofi
 // 10 : algofi Pool fee either 9925 or 9975
-// 17 : algofi loop counter
 
 // 11 : opt-in loop
 
@@ -28,7 +27,6 @@ export const appTeal = () : string => `
 // 13 : asset-out supply in pactfi pool
 // 14 : Asset-out amount with pactfi
 // 15 : pactfi Pool fee, usually 9970 (0.3%)
-// 18 : pactfi loop counter
 
 // 16 : best quote: either "Tinyman", "Algofi", "Pactfi"
 
@@ -105,10 +103,8 @@ assert // check asset-in is not asset-out !
 
 ${tinyQuoteTeal}
 
-algofi_loop:
 ${algofiQuoteTeal}
 
-pactfi_loop:
 ${pactfiQuote}
 
 // Which one is the best quote ?
