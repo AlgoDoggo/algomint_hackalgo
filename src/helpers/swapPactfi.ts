@@ -9,26 +9,17 @@ import {
   signTransaction,
   waitForConfirmation,
 } from "algosdk";
-import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { managerID_dex } from "../constants/constants.js";
+import { sortAssets } from "../utils/sortAssets.js";
 
-dotenv.config();
 const enc = new TextEncoder();
 
-const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut }) => {
+const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut, minAmountOut }) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = await setupClient();
-  let tx0, primaryAsset, secondaryAsset;
+  const assets = sortAssets([assetIn, assetOut]);
 
-  if (assetIn < assetOut) {
-    primaryAsset = assetIn;
-    secondaryAsset = assetOut;
-  } else {
-    primaryAsset = assetOut;
-    secondaryAsset = assetIn;
-  }
-
+  let tx0;
   if (assetIn === 0) {
     tx0 = makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
@@ -47,16 +38,14 @@ const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
   }
 
   const tx1 = makeApplicationNoOpTxnFromObject({
-    // swap exact for
     suggestedParams: {
       ...suggestedParams,
-      fee: suggestedParams.fee * 2, //(fee is 5x for nanoswap 2x for regular swap)
+      fee: suggestedParams.fee * 2,
     },
     from: account.addr,
     appIndex: app,
-    appArgs: [enc.encode("SWAP"), encodeUint64(0)], // second arg is minimum amount out
-    foreignAssets: [primaryAsset, secondaryAsset],
-    foreignApps: [managerID_dex],
+    appArgs: [enc.encode("SWAP"), encodeUint64(minAmountOut)], // second arg is minimum amount out
+    foreignAssets: [assets[0], assets[1]],
   });
 
   const transactions = [tx0, tx1];
@@ -67,6 +56,10 @@ const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
   const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: amountOut, amt: algoOut, xaid } = innerTX[0]?.txn;
-  console.log(`Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${xaid ? `token n°${xaid}` : "microAlgos"}`);
+  console.log(
+    `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : "of your asset"} for ${amountOut ?? algoOut} ${
+      xaid ? `token n°${xaid}` : "microAlgos"
+    }`
+  );
 };
 export default swapPactfi;

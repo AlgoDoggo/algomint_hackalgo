@@ -9,11 +9,9 @@ import {
   signTransaction,
   waitForConfirmation,
 } from "algosdk";
-import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { managerID_dex } from "../constants/constants.js";
+import { algofi_managerID_dex } from "../constants/constants.js";
 
-dotenv.config();
 const enc = new TextEncoder();
 
 const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut, minAmountOut }) => {
@@ -48,7 +46,7 @@ const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut, min
     //"sef" for swap exact for, second arg is minimum amount to receive
     appArgs: [enc.encode("sef"), encodeUint64(minAmountOut)],
     foreignAssets: [assetOut],
-    foreignApps: [managerID_dex],
+    foreignApps: [algofi_managerID_dex],
   });
 
   const transactions = [tx0, tx1];

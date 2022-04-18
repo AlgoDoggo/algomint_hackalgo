@@ -10,16 +10,14 @@ const asset2 = USDC;
 
 const swapParams = {
   amount: 90,
-  assetIn: 0,
-  assetOut: USDC,
-  pactfiFee: 30,
+  assetIn: asset1,
+  assetOut: asset2,
 };
+
 try {
   const accounts = await getAccounts(sortAssets([asset1, asset2]));
   console.log(accounts);
   await smartRoute({ ...accounts, ...swapParams });
-
-  
 } catch (error) {
-  console.error(error.message);
+  console.error(error);
 }
