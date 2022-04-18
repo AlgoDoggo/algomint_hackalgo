@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "create-app": "ts-node ./examples/createApp.ts",
-    "start": "nodemon ./index.ts"
+    "start": "nodemon ./index.ts",
+    "optin": "nodemon ./examples/makePoolOptIn.ts"
   },
   "keywords": [],
   "author": "AlgoDoggo",
