@@ -12,12 +12,10 @@ import {
 } from "algosdk";
 import { setupClient } from "../src/adapters/algoD.js";
 import { routerApp, tinyValidatorApp, USDC } from "../src/constants/constants.js";
-import dotenv from "dotenv";
 import swapAlgofi from "../src/helpers/swapAlgofi.js";
 import swapPactfi from "../src/helpers/swapPactfi.js";
 import swapTinyman from "../src/helpers/swapTinyman.js";
-import { appArray } from "../src/helpers/getAccounts.js";
-dotenv.config();
+import { poolProps } from "../src/helpers/getAccounts.js";
 
 interface smartRoute {
   ({}: {
@@ -26,8 +24,8 @@ interface smartRoute {
     assetOut: number;
     tinyPool: string;
     tinyLT: number;
-    algofi: appArray;
-    pactfi: appArray;
+    algofi: poolProps;
+    pactfi: poolProps;
   }): Promise<void>;
 }
 
@@ -97,8 +95,8 @@ const smartRoute: smartRoute = async ({
   );
   console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
   console.log(logs[6]);
-  //await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
-  //await swapAlgofi({ assetIn, amount, app: algofi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
-  //await swapPactfi({ assetIn, amount, app: pactfi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
+  await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
+  await swapAlgofi({ assetIn, amount, app: algofi.app, suggestedParams, assetOut, minAmountOut: 10 });
+  await swapPactfi({ assetIn, amount, app: pactfi.app, suggestedParams, assetOut, minAmountOut: 10 });
 };
 export default smartRoute;

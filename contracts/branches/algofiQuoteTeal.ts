@@ -31,14 +31,14 @@ store 8
 
 // algofi pools have 2 types of fee 75 or 25, I'm sending it in appargs
 int 10000
-int 1 // algofi pool fee is at index 3 of app args
+int 1 // algofi pool fee is at index 1 of app args
 txnas ApplicationArgs
 btoi
 -
 dup
 store 10
 
-// amount_out = (asset_in_amount * (9925 || 9975) * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * (9925 || 9975)))
+// amount_out = ((9925 || 9975) * asset_in_amount * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * (9925 || 9975)))
 load 2
 *
 load 8

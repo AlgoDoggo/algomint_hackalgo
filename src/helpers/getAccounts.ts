@@ -1,83 +1,134 @@
+import { getApplicationAddress } from "algosdk";
 import axios from "axios";
+import { algofiFee } from "../utils/algofiFee.js";
 
 const tinyUrl = "https://testnet.analytics.tinyman.org/api/v1/pools/?is_pool_member=true&limit=all&verified_only=false";
 const algofiUrl = "https://thf1cmidt1.execute-api.us-east-2.amazonaws.com/Prod/amm_pools/?network=TESTNET";
 const pactfiUrl = "https://api.testnet.pact.fi/api/pools";
+const indexerUrl = "https://algoindexer.testnet.algoexplorerapi.io/v2";
 
-export type appArray = {
+export type poolProps = {
   app: number;
   fee: number;
-}[];
+};
 
 interface Accounts {
   (assets: number[]): Promise<{
     tinyPool: string;
     tinyLT: number;
-    algofi: appArray;
-    pactfi: appArray;
+    algofi: poolProps;
+    pactfi: poolProps;
   }>;
 }
 
 const getAccounts: Accounts = async (assets) => {
-  let tinyPool,
-    tinyLT,
-    algofi: any[] = [],
-    pactfi: any[] = [];
+  let tinyPool, tinyLT, algofi, pactfi;
 
-  try {
-    const { data: tinyData } = await axios.get(tinyUrl).catch(function (error) {
-      throw new Error(
-        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-      );
-    });
-    // in Tinyman there is only one pool for any given trading pair
-    const result = tinyData.results.find((r) => r["asset_1"].id == assets[1] && r["asset_2"].id == assets[0]);
-    tinyPool = result.address;
-    tinyLT = Number(result["liquidity_asset"].id);
-  } catch (error) {
-    console.error(error.message);
-  }
-
-  try {
-    const { data: algofiData } = await axios.get(algofiUrl).catch(function (error) {
-      throw new Error(
-        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-      );
-    });
-    const results = algofiData.pools.filter(
-      (r) => (assets[0] === 0 ? r["asset_1"] == 1 : r["asset_1"] == assets[0]) && r["asset_2"] == assets[1]
-    );
-    if (results.length > 3) throw new Error("Too many AlgoFi pools found");
-
-    // in Algofi there are 0.10 (nanopools), 0.25 and 0.75 fee pools.
-    for (let i = 0; i < results.length; i += 1) {
-      let fee;
-      if (results[i]["validator_index"] == 0) {
-        fee = 25;
-      } else {
-        fee = 75;
-      }
-      algofi.push({ app: results[i].id, fee });
-    }
-  } catch (error) {
-    console.error(error.message);
-  }
-
-  try {
-    const { data: pactfiData } = await axios
-      .get(`${pactfiUrl}?primary_asset__algoid=${assets[0]}&secondary_asset__algoid=${assets[1]}`)
-      .catch(function (error) {
+  tinyman: {
+    try {
+      const { data: tinyData } = await axios.get(tinyUrl).catch(function (error) {
         throw new Error(
-          error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
+          error?.response?.data
+            ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+            : error?.message
         );
       });
-    const results = pactfiData.results;
-    // in Pactfi there can be many pools for a same asset pair, with a different structure
-    for (let i = 0; i < results.length; i += 1) {
-      pactfi.push({ app: Number(results[i].appid), fee: results[i].fee_bps });
+      // in Tinyman there is only one pool for any given trading pair
+      const result = tinyData.results.find((r) => r["asset_1"].id == assets[1] && r["asset_2"].id == assets[0]);
+      tinyPool = result.address;
+      tinyLT = Number(result["liquidity_asset"].id);
+    } catch (error) {
+      console.error(error.message);
     }
-  } catch (error) {
-    console.error(error.message);
+  }
+
+  algofi: {
+    try {
+      const { data: algofiData } = await axios.get(algofiUrl).catch(function (error) {
+        throw new Error(
+          error?.response?.data
+            ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+            : error?.message
+        );
+      });
+      const results = algofiData.pools.filter(
+        (r) => (assets[0] === 0 ? r["asset_1"] == 1 : r["asset_1"] == assets[0]) && r["asset_2"] == assets[1]
+      );
+
+      // in Algofi there are 0.10 (nanopools), 0.25 and 0.75 fee pools.
+      // If several pools are available we'll target the most liquid one to reduce price impact
+      // Doing this initial filtering could be done in the smart contract but would be impractical
+      // due to the limitations on the contracts array:
+      // accounts + foreignApps + foreignAssets <= 8
+
+      if (results.length <= 1) {
+        algofi = { app: results[0]?.id ?? 0, fee: algofiFee(results[0]) };
+        break algofi;
+      }
+
+      for (let i = 0; i < results.length; i += 1) {
+        const { data } = await axios.get(`${indexerUrl}/applications/${results[i].id}`).catch(function (error) {
+          throw new Error(
+            error?.response?.data
+              ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+              : error?.message
+          );
+        });
+        const state = data?.application?.params?.["global-state"];
+        const supply1 = state.find((g) => g.key === "YjE=")?.value?.uint;
+        const supply2 = state.find((g) => g.key === "YjI=")?.value?.uint;
+        results[i].liquidity = BigInt(supply1) * BigInt(supply2);
+      }
+
+      const mostLiquid = results.sort((a, b) =>
+        a.liquidity > b.liquidity ? -1 : a.liquidity > b.liquidity ? 1 : 0
+      )[0];
+      algofi = { app: mostLiquid.id, fee: algofiFee(mostLiquid) };
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  pactfi: {
+    try {
+      const { data: pactfiData } = await axios
+        .get(`${pactfiUrl}?primary_asset__algoid=${assets[0]}&secondary_asset__algoid=${assets[1]}`)
+        .catch(function (error) {
+          throw new Error(
+            error?.response?.data
+              ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+              : error?.message
+          );
+        });
+      const results = pactfiData.results;
+      // in Pactfi there can be many pools for a same asset pair, each with a different fee structure
+
+      if (results.length <= 1) {
+        pactfi = { app: Number(results[0]?.appid) ?? 0, fee: results[0]?.fee_bps ?? 0 };
+        break pactfi;
+      }
+
+      for (let i = 0; i < results.length; i += 1) {
+        const { data } = await axios.get(`${indexerUrl}/applications/${results[i].appid}`).catch(function (error) {
+          throw new Error(
+            error?.response?.data
+              ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+              : error?.message
+          );
+        });
+        const state = data?.application?.params?.["global-state"];
+        const supply1 = state.find((g) => g.key === Buffer.from("A", "utf8").toString("base64"))?.value?.uint;
+        const supply2 = state.find((g) => g.key === Buffer.from("B", "utf8").toString("base64"))?.value?.uint;
+        results[i].liquidity = BigInt(supply1) * BigInt(supply2);
+      }
+
+      const mostLiquid = results.sort((a, b) =>
+        a.liquidity > b.liquidity ? -1 : a.liquidity > b.liquidity ? 1 : 0
+      )[0];
+      pactfi = { app: Number(mostLiquid.appid), fee: mostLiquid.fee_bps };
+    } catch (error) {
+      console.error(error.message);
+    }
   }
   return { tinyPool, tinyLT, algofi, pactfi };
 };
