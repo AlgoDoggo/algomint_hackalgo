@@ -16,7 +16,7 @@ import { managerID_dex } from "../constants/constants.js";
 dotenv.config();
 const enc = new TextEncoder();
 
-const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut }) => {
+const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut, minAmountOut }) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = await setupClient();
   let tx0;
@@ -37,11 +37,6 @@ const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
     });
   }
 
-  //"sef" for swap exact for
-  //"sfe" for swap for exact, ie with a redeemTX at the end
-  //"rsr" for swap for exact, ie with a redeemTX at the end
-  const argsSef = [enc.encode("sef"), encodeUint64(0)]; // second arg is minimum amount to receive
-
   const tx1 = makeApplicationNoOpTxnFromObject({
     // swap exact for
     suggestedParams: {
@@ -50,7 +45,8 @@ const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
     },
     from: account.addr,
     appIndex: app,
-    appArgs: argsSef,
+    //"sef" for swap exact for, second arg is minimum amount to receive
+    appArgs: [enc.encode("sef"), encodeUint64(minAmountOut)],
     foreignAssets: [assetOut],
     foreignApps: [managerID_dex],
   });
@@ -63,6 +59,10 @@ const swapAlgofi = async ({ assetIn, amount, app, suggestedParams, assetOut }) =
   const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: amountOut, amt: algoOut, xaid } = innerTX[0]?.txn;
-  console.log(`Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${xaid ? `token n°${xaid}` : "microAlgos"}`);
+  console.log(
+    `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : "of your asset"} for ${amountOut ?? algoOut} ${
+      xaid ? `token n°${xaid}` : "microAlgos"
+    }`
+  );
 };
 export default swapAlgofi;
