@@ -59,7 +59,7 @@ const swapPactfi = async ({ assetIn, amount, app, suggestedParams, assetOut, min
   console.log(
     `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : "of your asset"} for ${amountOut ?? algoOut} ${
       xaid ? `token n°${xaid}` : "microAlgos"
-    }`
+    } on Pactfi`
   );
 };
 export default swapPactfi;

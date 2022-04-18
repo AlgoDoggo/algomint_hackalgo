@@ -1,5 +1,5 @@
 import {
-  assignGroupID,  
+  assignGroupID,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
@@ -8,7 +8,7 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import { setupClient } from "../adapters/algoD.js";
-import {  tinyValidatorApp } from "../constants/constants.js";
+import { tinyValidatorApp } from "../constants/constants.js";
 import { getTinyLSig } from "./getTinyLSig.js";
 
 const enc = new TextEncoder();
@@ -82,7 +82,11 @@ export const swapTinyman = async ({ assetIn, amount, suggestedParams, tinyPool, 
     await algodClient.sendRawTransaction([t0, t1.blob, t2, t3.blob]).do();
     const transactionResponse = await waitForConfirmation(algodClient, t3.txID, 5);
     const { aamt: amountOut, amt: algoOut, xaid } = transactionResponse?.txn?.txn;
-    console.log(`Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${xaid ? `token n°${xaid}` : "microAlgos"}`);
+    console.log(
+      `Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${
+        xaid ? `token n°${xaid}` : "microAlgos"
+      } on Tinyman`
+    );
   } catch (error) {
     console.error(error.message);
   }

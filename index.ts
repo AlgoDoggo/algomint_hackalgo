@@ -9,9 +9,10 @@ const asset1 = 0;
 const asset2 = USDC;
 
 const swapParams = {
-  amount: 900,
   assetIn: asset1,
   assetOut: asset2,
+  amount: 900,
+  slippage: 25 // in basis point = 0.25%
 };
 
 try {
