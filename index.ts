@@ -6,18 +6,18 @@ import { sortAssets } from "./src/utils/sortAssets.js";
 dotenv.config();
 
 const asset1 = 0;
-const asset2 = USDC;
+const asset2 = 51436723//USDC;
 
 const swapParams = {
-  assetIn: asset1,
-  assetOut: asset2,
-  amount: 900,
-  slippage: 25 // in basis point = 0.25%
+  assetIn: asset2,
+  assetOut: asset1,
+  amount: 10,
+  slippage: 25 // in basis points = 0.25%
 };
 
 try {
   const accounts = await getAccounts(sortAssets([asset1, asset2]));
-  console.log(accounts);    
+  console.log(accounts);
   await smartRoute({ ...accounts, ...swapParams });
 } catch (error) {
   console.error(error.message);

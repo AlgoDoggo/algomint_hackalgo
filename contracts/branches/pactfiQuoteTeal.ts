@@ -3,6 +3,11 @@ export const pactfiQuote = `
 // check price on Patcfi
 // Let's fetch the pool supply
 
+txna Accounts 3 // if the zero address is sent in accounts array, it means there is no pool for that asset pair
+global ZeroAddress
+==
+bnz pact_log_quote
+
 // get asset-in supply
 txna Applications 3
 byte "A" // in pactfi A is the primary asset and A < B
@@ -52,8 +57,10 @@ pop
 pop
 swap
 pop
-dup
-store 14 // Asset-out amount with Patcfi
+store 14 // Asset-out amount with Pactfi
+
+pact_log_quote:
+load 14 // Will be 0 in an absence of pool
 itob
 byte "Pactfi"
 log

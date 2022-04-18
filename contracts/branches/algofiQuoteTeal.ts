@@ -3,6 +3,11 @@ export const algofiQuoteTeal = `
 // check price on Algofi
 // Let's fetch the pool supply
 
+txna Accounts 2 // if the zero address is sent in accounts array, it means there is no pool for that asset pair
+global ZeroAddress
+==
+bnz algofi_log_quote
+
 // get asset-in supply
 int 2 // the algofi app is at index 2
 txnas Applications
@@ -53,8 +58,10 @@ pop
 pop
 swap
 pop
-dup
 store 9 // Asset-out amount with Algofi
+
+algofi_log_quote:
+load 9
 itob
 byte "Algofi"
 log

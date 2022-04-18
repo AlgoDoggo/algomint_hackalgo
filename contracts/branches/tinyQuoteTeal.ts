@@ -3,6 +3,11 @@ export const tinyQuoteTeal = `
 // check price on Tinyman
 // first let's fetch the pool suplly amounts and substract the redeem amounts in pool local state
 
+txna Accounts 1 // if the zero address is sent in accounts array, it means there is no pool for that asset pair
+global ZeroAddress
+==
+bnz tiny_log_quote
+
 // get asset-in balance in tiny pool
 load 1
 bz tiny_assetIn_isAlgo
@@ -83,11 +88,14 @@ pop
 pop
 swap
 pop
-dup
 store 6 // Asset-out amount with Tinyman
+
+tiny_log_quote:
+load 6 // 0 if we landed there from the bnz at the top
 itob
 byte "Tinyman"
 log
 log
+
 
 `

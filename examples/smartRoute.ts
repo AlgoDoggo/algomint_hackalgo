@@ -11,7 +11,7 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import { setupClient } from "../src/adapters/algoD.js";
-import { routerApp, tinyValidatorApp, USDC } from "../src/constants/constants.js";
+import { routerApp, tinyValidatorApp, USDC, zeroAddress } from "../src/constants/constants.js";
 import swapAlgofi from "../src/helpers/swapAlgofi.js";
 import swapPactfi from "../src/helpers/swapPactfi.js";
 import swapTinyman from "../src/helpers/swapTinyman.js";
@@ -78,9 +78,13 @@ const smartRoute: smartRoute = async ({
       encodeUint64(pactfi.fee), // any number between 1-100
     ],
     // tinyman, algofi, pactfi
-    accounts: [tinyPool, getApplicationAddress(algofi.app), getApplicationAddress(pactfi.app)],
+    accounts: [
+      tinyPool ?? zeroAddress,
+      algofi.app ? getApplicationAddress(algofi.app) : zeroAddress,
+      pactfi.app ? getApplicationAddress(pactfi.app) : zeroAddress,
+    ],
     // asset-in && asset-out
-    foreignAssets: [USDC],
+    foreignAssets: [assetIn, assetOut],
     // tinyman, algofi, pactfi
     foreignApps: [tinyValidatorApp, algofi.app, pactfi.app],
   });

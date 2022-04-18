@@ -104,7 +104,7 @@ const getAccounts: Accounts = async (assets) => {
       // in Pactfi there can be many pools for a same asset pair, each with a different fee structure
 
       if (results.length <= 1) {
-        pactfi = { app: Number(results[0]?.appid) ?? 0, fee: results[0]?.fee_bps ?? 0 };
+        pactfi = { app: Number(results[0]?.appid) || 0, fee: results[0]?.fee_bps ?? 0 };
         break pactfi;
       }
 

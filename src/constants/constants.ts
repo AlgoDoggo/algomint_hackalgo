@@ -1,7 +1,7 @@
 // TESTNET
 
 // smart routing app
-export const routerApp = 84567137
+export const routerApp = 84602652
 
 //assets
 export const USDC = 10458941
@@ -10,3 +10,6 @@ export const USDC = 10458941
 export const tinyValidatorApp = 62368684
 export const algofi_managerID_dex = 66008735;
 export const algofi_managerID_nanoswap = 77282916;
+
+//misc
+export const zeroAddress = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"
