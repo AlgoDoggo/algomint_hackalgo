@@ -5,6 +5,8 @@ export const routerApp = 84602652
 
 //assets
 export const USDC = 10458941
+export const goETH = 51437163
+export const goBTC = 51436723
 
 // manager apps
 export const tinyValidatorApp = 62368684
