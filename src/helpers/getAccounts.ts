@@ -7,7 +7,14 @@ import { pactfiApp, tinyValidatorApp } from "../constants/constants.js";
 
 const tinyUrl = "https://testnet.analytics.tinyman.org/api/v1/pools/?is_pool_member=true&limit=all&verified_only=false";
 
-const getAccounts = async (assets: number[]) => {
+interface Accounts {
+  (assets: number[]): Promise<{
+    tinyPool: string;
+    tinyLT: number;
+  }>;
+}
+
+const getAccounts: Accounts = async (assets) => {
   let tinyPool, tinyLT;
 
   try {
