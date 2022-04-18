@@ -31,7 +31,15 @@ interface smartRoute {
   }): Promise<void>;
 }
 
-const smartRoute: smartRoute = async ({ amount = 100, assetIn = USDC, assetOut = 0, tinyPool, tinyLT, algofi, pactfi }) => {
+const smartRoute: smartRoute = async ({
+  amount = 100,
+  assetIn = USDC,
+  assetOut = 0,
+  tinyPool,
+  tinyLT,
+  algofi,
+  pactfi,
+}) => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
 
   let algodClient = await setupClient();
@@ -57,20 +65,36 @@ const smartRoute: smartRoute = async ({ amount = 100, assetIn = USDC, assetOut =
     });
   }
 
+  let accounts = [tinyPool], foreignApps = [tinyValidatorApp], fee :Uint8Array[] = []
+  for (let i = 0; i < algofi.length; i+=1) {
+    accounts.push(getApplicationAddress(algofi[i].app))
+    foreignApps.push(algofi[i].app)
+    fee.push(encodeUint64(algofi[i].fee))
+  }
+  for (let i = 0; i < pactfi.length; i+=1) {
+    accounts.push(getApplicationAddress(pactfi[i].app))
+    foreignApps.push(pactfi[i].app)
+    fee.push(encodeUint64(pactfi[i].fee))
+  }
   const tx1 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...suggestedParams,
-      fee: suggestedParams.fee * 2, //(fee is 5x for nanoswap 2x for regular swap)
+      fee: suggestedParams.fee * 2, //(fee is 2x because I have to send back the asset I'm sending to the contract
     },
     from: account.addr,
-    appIndex: routerApp,
-    // asset-out ID, 0 if algo, algofi fee (25 or 75)
-    appArgs: [encodeUint64(assetOut), encodeUint64(algofi[0].fee), encodeUint64(pactfi[0].fee)],
+    appIndex: routerApp,    
+    appArgs: [
+      encodeUint64(assetOut), // asset-out ID - 0 if algo  
+      encodeUint64(algofi.length), // number of algofi pools to check
+      encodeUint64(pactfi.length), // number of pactif pools to check
+      ...fee // algofi and pactfi fees for the respoective pools
+    ],
     // tinyman, algofi, pactfi
-    accounts: [tinyPool, getApplicationAddress(algofi[0].app), getApplicationAddress(pactfi[0].app)],
+    accounts,
     // asset-in && asset-out
     foreignAssets: [USDC],
-    foreignApps: [tinyValidatorApp, algofi[0].app, pactfi[0].app],
+    // tinyman, algofi, pactfi
+    foreignApps,
   });
   const transactions = [tx0, tx1];
   assignGroupID(transactions);
@@ -85,8 +109,8 @@ const smartRoute: smartRoute = async ({ amount = 100, assetIn = USDC, assetOut =
   );
   console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
   console.log(logs[6]);
-  await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
-  await swapAlgofi({ assetIn, amount, app: algofi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
-  await swapPactfi({ assetIn, amount, app: pactfi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
+  //await swapTinyman({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut: 10 });
+  //await swapAlgofi({ assetIn, amount, app: algofi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
+  //await swapPactfi({ assetIn, amount, app: pactfi[0].app, suggestedParams, assetOut, minAmountOut: 10 });
 };
 export default smartRoute;

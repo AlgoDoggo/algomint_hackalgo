@@ -4,7 +4,10 @@ export const algofiQuoteTeal = `
 // Let's fetch the pool supply
 
 // get asset-in supply
-txna Applications 2
+int 2 // the first algofi app is at index 2
+load 17 // loop counter, will be 0 on first loop
++
+txnas Applications
 byte "b1"
 byte "b2"
 load 1
@@ -16,7 +19,10 @@ pop
 store 7
 
 // get asset-out supply
-txna Applications 2
+int 2 // the first algofi app is at index 2
+load 17 // will be 0 on first loop
++
+txnas Applications
 byte "b1"
 byte "b2"
 load 3
@@ -30,7 +36,10 @@ store 8
 
 // algofi pools have 2 types of fee 75 or 25, I'm sending it in appargs
 int 10000
-txna ApplicationArgs 1
+int 3 // the first algofi pool fee is at index 3 of app args
+load 17 // loop counter
++
+txnas ApplicationArgs
 btoi
 -
 dup
@@ -57,7 +66,21 @@ dup
 store 9 // Asset-out amount with Algofi
 itob
 byte "Algofi"
+load 17
+itob
+concat
 log
 log
+
+load 17
+int 1
++
+dup
+store 17
+txna ApplicationArgs 1 // number of algofi pools to check
+btoi
+<
+
+bnz algofi_loop
 
 `

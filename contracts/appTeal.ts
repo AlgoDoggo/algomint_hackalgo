@@ -1,14 +1,9 @@
-import { algofiQuoteTeal } from "./algofiQuoteTeal.js";
-import { optIn } from "./branches/optIn.js";
-import { pactfiQuote } from "./pactfiQuote.js";
-import { tinyQuoteTeal } from "./tinyQuoteTeal.js";
+import { algofiQuoteTeal } from "./branches/algofiQuoteTeal.js";
+import { optIn } from "./branches/optInTeal.js";
+import { pactfiQuote } from "./branches/pactfiQuoteTeal.js";
+import { tinyQuoteTeal } from "./branches/tinyQuoteTeal.js";
 
-
-interface App {
-  (): string;
-}
-
-export const appTeal : App = () => `
+export const appTeal = () : string => `
 // scratch space :
 // 1 : asset-in ID, 0 if algo
 // 2 : asset-in amount
@@ -24,6 +19,7 @@ export const appTeal : App = () => `
 // 8 : asset-out supply in algofi pool
 // 9 : Asset-out amount with algofi
 // 10 : algofi Pool fee either 9925 or 9975
+// 17 : algofi loop counter
 
 // 11 : opt-in loop
 
@@ -32,6 +28,7 @@ export const appTeal : App = () => `
 // 13 : asset-out supply in pactfi pool
 // 14 : Asset-out amount with pactfi
 // 15 : pactfi Pool fee, usually 9970 (0.3%)
+// 18 : pactfi loop counter
 
 // 16 : best quote: either "Tinyman", "Algofi", "Pactfi"
 
@@ -108,8 +105,10 @@ assert // check asset-in is not asset-out !
 
 ${tinyQuoteTeal}
 
+algofi_loop:
 ${algofiQuoteTeal}
 
+pactfi_loop:
 ${pactfiQuote}
 
 // Which one is the best quote ?

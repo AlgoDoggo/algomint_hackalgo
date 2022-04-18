@@ -17,6 +17,7 @@ const swapParams = {
 try {
   const accounts = await getAccounts(sortAssets([asset1, asset2]));
   console.log(accounts);
+  //throw "ds"
   await smartRoute({ ...accounts, ...swapParams });
 } catch (error) {
   console.error(error);
