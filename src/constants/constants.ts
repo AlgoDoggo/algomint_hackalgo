@@ -1,7 +1,7 @@
 // TESTNET
 
 // smart routing app
-export const routerApp = 84823854
+export const routerApp = 84834974
 
 //assets
 export const USDC = 10458941
