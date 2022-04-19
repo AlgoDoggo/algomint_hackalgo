@@ -1,5 +1,5 @@
-import { getApplicationAddress } from "algosdk";
 import axios from "axios";
+import { poolProps, tinyProps } from "../types/types.js";
 import { algofiFee } from "../utils/algofiFee.js";
 
 const tinyUrl = "https://testnet.analytics.tinyman.org/api/v1/pools/?is_pool_member=true&limit=all&verified_only=false";
@@ -7,22 +7,17 @@ const algofiUrl = "https://thf1cmidt1.execute-api.us-east-2.amazonaws.com/Prod/a
 const pactfiUrl = "https://api.testnet.pact.fi/api/pools";
 const indexerUrl = "https://algoindexer.testnet.algoexplorerapi.io/v2";
 
-export type poolProps = {
-  app: number;
-  fee: number;
-};
 
 interface Accounts {
   (assets: number[]): Promise<{
-    tinyPool: string;
-    tinyLT: number;
+    tinyman: tinyProps;
     algofi: poolProps;
     pactfi: poolProps;
   }>;
 }
 
 const getAccounts: Accounts = async (assets) => {
-  let tinyPool, tinyLT, algofi, pactfi;
+  let tinyman, algofi, pactfi;
 
   tinyman: {
     try {
@@ -35,8 +30,8 @@ const getAccounts: Accounts = async (assets) => {
       });
       // in Tinyman there is only one pool for any given trading pair
       const result = tinyData.results.find((r) => r["asset_1"].id == assets[1] && r["asset_2"].id == assets[0]);
-      tinyPool = result.address;
-      tinyLT = Number(result["liquidity_asset"].id);
+      if (!result) break tinyman;
+      tinyman = { pool: result.address, lt: Number(result["liquidity_asset"].id) };
     } catch (error) {
       console.error(error.message);
     }
@@ -60,9 +55,9 @@ const getAccounts: Accounts = async (assets) => {
       // Doing this initial filtering could be done in the smart contract but would be impractical
       // due to the limitations on the contracts array:
       // accounts + foreignApps + foreignAssets <= 8
-
-      if (results.length <= 1) {
-        algofi = { app: results[0]?.id ?? 0, fee: algofiFee(results[0]) };
+      if (results.length === 0) break algofi;
+      if (results.length === 1) {
+        algofi = { app: results[0].id, fee: algofiFee(results[0]) };
         break algofi;
       }
 
@@ -102,9 +97,9 @@ const getAccounts: Accounts = async (assets) => {
         });
       const results = pactfiData.results;
       // in Pactfi there can be many pools for a same asset pair, each with a different fee structure
-
+      if (results.length === 0) break pactfi;
       if (results.length <= 1) {
-        pactfi = { app: Number(results[0]?.appid) || 0, fee: results[0]?.fee_bps ?? 0 };
+        pactfi = { app: Number(results[0]?.appid), fee: results[0]?.fee_bps };
         break pactfi;
       }
 
@@ -130,6 +125,6 @@ const getAccounts: Accounts = async (assets) => {
       console.error(error.message);
     }
   }
-  return { tinyPool, tinyLT, algofi, pactfi };
+  return { tinyman, algofi, pactfi };
 };
 export default getAccounts;

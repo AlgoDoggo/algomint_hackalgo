@@ -2,7 +2,7 @@ import { LogicSigAccount } from "algosdk";
 import { spawn } from "child_process";
 import { tinyValidatorApp } from "../constants/constants.js";
 
-export const getTinyLSig = async (assets: number[]): Promise<LogicSigAccount> => {
+const getTinyLSig = async (assets: number[]): Promise<LogicSigAccount> => {
   const python = spawn("python", [
     `src/utils/tinyPoolGen.py`,
     tinyValidatorApp.toString(),
@@ -24,3 +24,4 @@ export const getTinyLSig = async (assets: number[]): Promise<LogicSigAccount> =>
 
   return lsig;
 };
+export default getTinyLSig

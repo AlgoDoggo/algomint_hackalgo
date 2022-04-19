@@ -1,9 +1,3 @@
 import algosdk from "algosdk";
 
-export async function setupClient() {
-  const token = "";
-  //const server = "https://node.algoexplorerapi.io/";
-  const server = "https://node.testnet.algoexplorerapi.io/";
-  const port = "";
-  return new algosdk.Algodv2(token, server, port);
-}
+export const algoD = new algosdk.Algodv2("", "https://node.testnet.algoexplorerapi.io/", "");

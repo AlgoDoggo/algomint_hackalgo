@@ -109,6 +109,20 @@ ${pactfiQuote}
 
 // Which one is the best quote ?
 
+// Verify at least one of the quote is not zero
+load 6
+int 0
+!=
+load 9
+int 0
+!=
+||
+load 14
+int 0
+!=
+||
+assert
+
 byte "Tinyman"
 byte "Algofi"
 load 9

@@ -1,11 +1,10 @@
-import { setupClient } from "../src/adapters/algoD.js";
+import { algoD } from "../adapters/algoD.js";
 import fs from "fs";
 import {
   assignGroupID,
   getApplicationAddress,
   makeApplicationCreateTxnFromObject,
   makeApplicationNoOpTxnFromObject,
-  makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
   OnApplicationComplete,
@@ -13,22 +12,21 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { appTeal } from "../contracts/appTeal.js";
-import { USDC } from "../src/constants/constants.js";
+import { appTeal } from "../../contracts/appTeal.js";
+import { goBTC, goETH, USDC } from "../constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {
   const account = mnemonicToSecretKey(process.env.Mnemo!);
-  const algodClient = await setupClient();
-  const suggestedParams = await algodClient.getTransactionParams().do();
+  const suggestedParams = await algoD.getTransactionParams().do();
 
   suggestedParams.flatFee = true;
   suggestedParams.fee = 1000;
 
-  const compileApp = await algodClient.compile(appTeal()).do();
+  const compileApp = await algoD.compile(appTeal()).do();
 
   const clearState = fs.readFileSync(new URL("../contracts/clearProg.teal", import.meta.url), "utf8");
-  const compiledClearProg = await algodClient.compile(clearState).do();
+  const compiledClearProg = await algoD.compile(clearState).do();
 
   const tx = makeApplicationCreateTxnFromObject({
     suggestedParams,
@@ -43,8 +41,8 @@ const createApp = async () => {
   });
 
   let txSigned = tx.signTxn(account.sk);
-  let { txId } = await algodClient.sendRawTransaction(txSigned).do();
-  let transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+  let { txId } = await algoD.sendRawTransaction(txSigned).do();
+  let transactionResponse = await waitForConfirmation(algoD, txId, 5);
   const appId = transactionResponse["application-index"];
   console.log("Created router app: ", appId);
 
@@ -59,17 +57,17 @@ const createApp = async () => {
   const appBootstrap = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...suggestedParams,
-      fee: suggestedParams.fee * 3,
+      fee: suggestedParams.fee * 4,
     },
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [USDC],
+    foreignAssets: [USDC, goETH, goBTC],
     appArgs: [new Uint8Array(Buffer.from("optIn", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];
   assignGroupID(transactions);
   let bootstrapSigned = transactions.map((t) => signTransaction(t, account.sk));
-  await algodClient.sendRawTransaction(bootstrapSigned.map((t) => t.blob)).do();
+  await algoD.sendRawTransaction(bootstrapSigned.map((t) => t.blob)).do();
 };
 
 createApp().catch((error) => console.log(error.message));

@@ -10,20 +10,19 @@ import {
   signTransaction,
   waitForConfirmation,
 } from "algosdk";
-import { setupClient } from "../src/adapters/algoD.js";
-import { routerApp, tinyValidatorApp, USDC, zeroAddress } from "../src/constants/constants.js";
-import swapAlgofi from "../src/helpers/swapAlgofi.js";
-import swapPactfi from "../src/helpers/swapPactfi.js";
-import swapTinyman from "../src/helpers/swapTinyman.js";
-import { poolProps } from "../src/helpers/getAccounts.js";
+import { routerApp, tinyValidatorApp, USDC, zeroAddress } from "./constants/constants.js";
+import swapAlgofi from "./swapAlgofi.js";
+import swapPactfi from "./swapPactfi.js";
+import swapTinyman from "./swapTinyman.js";
+import { algoD } from "./adapters/algoD.js";
+import { poolProps, tinyProps } from "./types/types.js";
 
 interface smartRoute {
   ({}: {
     amount: number;
     assetIn: number;
     assetOut: number;
-    tinyPool: string;
-    tinyLT: number;
+    tinyman: tinyProps;
     algofi: poolProps;
     pactfi: poolProps;
     slippage: number;
@@ -34,16 +33,14 @@ const smartRoute: smartRoute = async ({
   amount = 100,
   assetIn = USDC,
   assetOut = 0,
-  tinyPool,
-  tinyLT,
+  tinyman,
   algofi,
   pactfi,
-  slippage,
+  slippage = 50,
 }) => {
+  if (!tinyman && !algofi && !pactfi) throw new Error("No pools found for this asset pair");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
-
-  let algodClient = await setupClient();
-  const suggestedParams = await algodClient.getTransactionParams().do();
+  const suggestedParams = await algoD.getTransactionParams().do();
 
   suggestedParams.flatFee = true;
   suggestedParams.fee = 1000;
@@ -74,25 +71,25 @@ const smartRoute: smartRoute = async ({
     appIndex: routerApp,
     appArgs: [
       encodeUint64(assetOut), // asset-out ID - 0 if algo
-      encodeUint64(algofi.fee), // 10, 25 or 75
-      encodeUint64(pactfi.fee), // any number between 1-100
+      encodeUint64(algofi?.fee ?? 0), // 10, 25 or 75
+      encodeUint64(pactfi?.fee ?? 0), // any number between 1-100
     ],
     // tinyman, algofi, pactfi
     accounts: [
-      tinyPool ?? zeroAddress,
-      algofi.app ? getApplicationAddress(algofi.app) : zeroAddress,
-      pactfi.app ? getApplicationAddress(pactfi.app) : zeroAddress,
+      tinyman?.pool ?? zeroAddress,
+      algofi?.app ? getApplicationAddress(algofi.app) : zeroAddress,
+      pactfi?.app ? getApplicationAddress(pactfi.app) : zeroAddress,
     ],
     // asset-in && asset-out
     foreignAssets: [assetIn, assetOut],
     // tinyman, algofi, pactfi
-    foreignApps: [tinyValidatorApp, algofi.app, pactfi.app],
+    foreignApps: [tinyValidatorApp, algofi?.app ?? 0, pactfi?.app ?? 0],
   });
   const transactions = [tx0, tx1];
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
-  await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
-  const transactionResponse = await waitForConfirmation(algodClient, signedTxs[1].txID, 5);
+  await algoD.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
+  const transactionResponse = await waitForConfirmation(algoD, signedTxs[1].txID, 5);
   const logs = transactionResponse?.logs?.map((l, i) =>
     i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
   );
@@ -108,16 +105,16 @@ const smartRoute: smartRoute = async ({
       assetIn,
       amount,
       suggestedParams,
-      tinyPool,
+      tinyPool: tinyman?.pool!,
       assetOut,
-      tinyLT,
+      tinyLT: tinyman?.lt!,
       minAmountOut: Math.floor((logs[1] * (10000 - slippage)) / 10000),
     });
   } else if (logs[6].slice(17) == "Algofi") {
     await swapAlgofi({
       assetIn,
       amount,
-      app: algofi.app,
+      app: algofi?.app!,
       suggestedParams,
       assetOut,
       minAmountOut: Math.floor((logs[3] * (10000 - slippage)) / 10000),
@@ -126,7 +123,7 @@ const smartRoute: smartRoute = async ({
     await swapPactfi({
       assetIn,
       amount,
-      app: pactfi.app,
+      app: pactfi?.app!,
       suggestedParams,
       assetOut,
       minAmountOut: Math.floor((logs[5] * (10000 - slippage)) / 10000),

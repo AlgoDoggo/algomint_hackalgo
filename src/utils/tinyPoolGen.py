@@ -37,8 +37,7 @@ def get_pool_logicsig(validator_app_id, asset1_id, asset2_id):
         asset_id_1=asset_id_1,
         asset_id_2=asset_id_2,
     ))   
-    return program
-    #return LogicSig(program=program_bytes)
+    return program    
 
 def get_program(definition, variables=None):
     """
@@ -58,8 +57,7 @@ def get_program(definition, variables=None):
         diff = v['length'] - value_encoded_len
         offset += diff
         template_bytes[start:end] = list(value_encoded)
-    return template_bytes
-    #return bytes(template_bytes)
+    return template_bytes    
 
 def encode_value(value, type):
     if type == 'int':

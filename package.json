@@ -6,9 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "create-app": "ts-node ./examples/createApp.ts",
-    "start": "nodemon ./index.ts",
-    "optin": "ts-node ./examples/makePoolOptIn.ts"
+    "create-app": "ts-node ./src/helpers/createApp.ts",
+    "start": "nodemon ./index.ts"
   },
   "keywords": [],
   "author": "AlgoDoggo",

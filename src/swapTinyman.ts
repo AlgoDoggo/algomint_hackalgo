@@ -7,17 +7,29 @@ import {
   signLogicSigTransactionObject,
   waitForConfirmation,
 } from "algosdk";
-import { setupClient } from "../adapters/algoD.js";
-import { tinyValidatorApp } from "../constants/constants.js";
-import { getTinyLSig } from "./getTinyLSig.js";
+import { algoD } from "./adapters/algoD.js";
+import { tinyValidatorApp } from "./constants/constants.js";
+import getTinyLSig from "./helpers/getTinyLSig.js";
+import { Swap } from "./types/types.js";
 
 const enc = new TextEncoder();
 
-export const swapTinyman = async ({ assetIn, amount, suggestedParams, tinyPool, assetOut, tinyLT, minAmountOut }) => {
+interface SwapTinyman extends Swap {
+  tinyPool: string;
+  tinyLT: number;
+}
+
+export const swapTinyman = async ({
+  assetIn,
+  amount,
+  suggestedParams,
+  tinyPool,
+  assetOut,
+  tinyLT,
+  minAmountOut,
+}: SwapTinyman): Promise<void> => {
   try {
     const account = mnemonicToSecretKey(process.env.Mnemo!);
-    let algodClient = await setupClient();
-
     const lsig = await getTinyLSig([assetIn, assetOut]);
 
     //fee
@@ -79,8 +91,8 @@ export const swapTinyman = async ({ assetIn, amount, suggestedParams, tinyPool, 
     const t1 = signLogicSigTransactionObject(tx1, lsig);
     const t2 = tx2.signTxn(account.sk);
     const t3 = signLogicSigTransactionObject(tx3, lsig);
-    await algodClient.sendRawTransaction([t0, t1.blob, t2, t3.blob]).do();
-    const transactionResponse = await waitForConfirmation(algodClient, t3.txID, 5);
+    await algoD.sendRawTransaction([t0, t1.blob, t2, t3.blob]).do();
+    const transactionResponse = await waitForConfirmation(algoD, t3.txID, 5);
     const { aamt: amountOut, amt: algoOut, xaid } = transactionResponse?.txn?.txn;
     console.log(
       `Swapped ${amount} of your asset for ${amountOut ?? algoOut} ${
