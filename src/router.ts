@@ -3,21 +3,25 @@ import getOptInStatus from "./helpers/getOptInStatus.js";
 import smartRoute from "./smartRoute.js";
 import { poolProps, tinyProps } from "./types/types.js";
 import { sortAssets } from "./utils/sortAssets.js";
-import dotenv from "dotenv"
-import makePoolOptIn from "./makePoolOptIn.js";
-
-dotenv.config();
+import makeRouterOptIn from "./makeRouterOptIn.js";
+import { getApplicationAddress, mnemonicToSecretKey } from "algosdk";
+import { routerApp } from "./constants/constants.js";
+import makeUserOptIn from "./makeUserOptIn.js";
 
 class Router {
   asset1: number = 0;
   asset2: number;
+  mnemo: string;
   tinyman: tinyProps;
   algofi: poolProps;
   pactfi: poolProps;
-  optedInAsset1?: boolean;
-  optedInAsset2?: boolean;
+  routerOptInA1?: boolean;
+  routerOptInA2?: boolean;
+  userOptInA1?: boolean;
+  userOptInA2?: boolean;
 
-  constructor(asset1: number, asset2: number) {
+  constructor(asset1: number, asset2: number, mnemo: string) {
+    if (arguments.length != 3) throw new Error("missing parameters");
     if (asset1 == asset2) throw new Error("the two assets cannot be identical");
     if (asset1 < 0 || asset2 < 0 || Math.floor(asset1) != asset1 || Math.floor(asset2) != asset2) {
       throw new Error("assets must be positive integers");
@@ -25,6 +29,7 @@ class Router {
     const assets = sortAssets([asset1, asset2]);
     this.asset1 = assets[0];
     this.asset2 = assets[1];
+    this.mnemo = mnemo;
   }
 
   async loadPools() {
@@ -33,23 +38,44 @@ class Router {
     this.algofi = algofi;
     this.pactfi = pactfi;
 
-    // let's also check whether the contract is opted-in the relevant assets
-    const status = await getOptInStatus(this.asset1, this.asset2);
-    this.optedInAsset1 = status?.optedInAsset1;
-    this.optedInAsset2 = status?.optedInAsset2;
+    // let's check whether the contract is opted-in the relevant assets
+    const routerStatus = await getOptInStatus(this.asset1, this.asset2, getApplicationAddress(routerApp));
+    this.routerOptInA1 = routerStatus?.optedInAsset1;
+    this.routerOptInA2 = routerStatus?.optedInAsset2;
+
+    // let's also check whether the user is opted-in the relevant assets
+    const UserStatus = await getOptInStatus(this.asset1, this.asset2, mnemonicToSecretKey(this.mnemo).addr);
+    this.userOptInA1 = UserStatus?.optedInAsset1;
+    this.userOptInA2 = UserStatus?.optedInAsset2;
   }
 
   async swap({ amount, asset, slippage }) {
-    if (asset != this.asset1 && asset != this.asset2) throw new Error("asset mismatch");
-    // if contract hasn't opted-in the asset, it needs to
-    if(this.optedInAsset1 === false){
-      console.log("The router needs to opt-in asset 1")
-      await makePoolOptIn(this.asset1)
+    if (asset != this.asset1 && asset != this.asset2) {
+      throw new Error("Asset input does not match router's assets");
     }
-    if(this.optedInAsset2 === false){
-      console.log("The router needs to opt-in asset 1")
-      await makePoolOptIn(this.asset2)
+
+    // if router contract hasn't opted-in the asset, it needs to
+    if (this.routerOptInA1 === false || this.routerOptInA2 === false) {
+      console.log("The router needs to opt-in the swapped assets");
+      let assets: number[] = [];
+      if (this.routerOptInA1 === false) assets.push(this.asset1);
+      if (this.routerOptInA2 === false) assets.push(this.asset2);
+      await makeRouterOptIn(assets, this.mnemo);
+      this.routerOptInA1 = true;
+      this.routerOptInA2 = true;
     }
+
+    // if user hasn't opted-in the assets, it needs to
+    if (this.userOptInA1 === false || this.userOptInA2 === false) {
+      console.log("The user needs to opt-in the swapped assets");
+      let assets: number[] = [];
+      if (this.userOptInA1 === false) assets.push(this.asset1);
+      if (this.userOptInA2 === false) assets.push(this.asset2);
+      await makeUserOptIn(assets, this.mnemo);
+      this.userOptInA1 = true;
+      this.userOptInA2 = true;
+    }
+
     return await smartRoute({
       amount,
       assetIn: asset,
@@ -58,6 +84,7 @@ class Router {
       algofi: this.algofi,
       pactfi: this.pactfi,
       slippage: slippage,
+      mnemo: this.mnemo,
     });
   }
 }

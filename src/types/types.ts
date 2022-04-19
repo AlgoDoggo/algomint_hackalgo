@@ -4,6 +4,7 @@ export interface Swap {
   suggestedParams;
   assetOut: number;
   minAmountOut: number;
+  mnemo: string;
 }
 
 export interface SwapAlgoPact extends Swap {

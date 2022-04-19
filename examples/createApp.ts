@@ -1,4 +1,4 @@
-import { algoD } from "../adapters/algoD.js";
+import { algoD } from "../src/adapters/algoD.js";
 import fs from "fs";
 import {
   assignGroupID,
@@ -12,8 +12,8 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { appTeal } from "../../contracts/appTeal.js";
-import { goBTC, goETH, USDC } from "../constants/constants.js";
+import { appTeal } from "../contracts/appTeal.js";
+import { USDC } from "../src/constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {
@@ -57,11 +57,11 @@ const createApp = async () => {
   const appBootstrap = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...suggestedParams,
-      fee: suggestedParams.fee * 4,
+      fee: suggestedParams.fee * 2,
     },
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [USDC, goETH, goBTC],
+    foreignAssets: [USDC],
     appArgs: [new Uint8Array(Buffer.from("optIn", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];

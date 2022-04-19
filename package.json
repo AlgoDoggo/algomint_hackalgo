@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "create-app": "ts-node ./src/helpers/createApp.ts",
-    "start": "nodemon ./index.ts"
+  "scripts": {    
+    "create-app": "ts-node ./examples/createApp.ts",
+    "start": "nodemon ./examples/swap.ts"
   },
   "keywords": [],
   "author": "AlgoDoggo",

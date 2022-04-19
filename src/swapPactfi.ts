@@ -7,6 +7,7 @@ import {
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
   signTransaction,
+  Transaction,
   waitForConfirmation,
 } from "algosdk";
 import { algoD } from "./adapters/algoD.js";
@@ -22,11 +23,12 @@ const swapPactfi = async ({
   suggestedParams,
   assetOut,
   minAmountOut,
+  mnemo,
 }: SwapAlgoPact): Promise<void> => {
-  const account = mnemonicToSecretKey(process.env.Mnemo!);
+  const account = mnemonicToSecretKey(mnemo);
   const assets = sortAssets([assetIn, assetOut]);
 
-  let tx0;
+  let tx0: Transaction;
   if (assetIn === 0) {
     tx0 = makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
