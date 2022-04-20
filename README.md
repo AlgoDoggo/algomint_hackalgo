@@ -5,6 +5,12 @@ Current limitations on target pool contracts ( Teal < v6 means contract to contr
 
 This contract is a foundation. If and when the aforementioned marketplaces upgrade their logic, we will be able to add atomic, start-to-end smart routing in this contract.
 
+### Installation
+
+`npm install router_hackalgo`
+
+NodeJs must be installed on your machine as well as Python. When a quote is routed to Tinyman, the module needs to retrieve the LogicSig of the corresponding Tinyman pool. Node will spawn a child process and run the python script from the Tinyman py sdk to get it.
+
 ### Usage and high level explanation
 
 First instantiate a router class with the relevant trading pairs and your mnemo  
@@ -38,7 +44,7 @@ It could be argued there is no reason to send the swapped asset to the contract 
 
 ```
 
-import Router from "algomint_hackalgo";
+import Router from "router_hackalgo";
 
 const asset1 = 0 // Algo
 const asset2 = 10458941 // USDC;
