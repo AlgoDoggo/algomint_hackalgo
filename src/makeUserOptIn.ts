@@ -1,7 +1,8 @@
-import { makeAssetTransferTxnWithSuggestedParamsFromObject, mnemonicToSecretKey, signTransaction } from "algosdk";
+import { makeApplicationOptInTxnFromObject, makeAssetTransferTxnWithSuggestedParamsFromObject, mnemonicToSecretKey, signTransaction } from "algosdk";
 import { algoD } from "./adapters/algoD.js";
+import { tinyValidatorApp } from "./constants/constants.js";
 
-const makeUserOptIn = async (assets: number[], mnemo: string): Promise<void> => {
+const makeUserOptIn = async (assets: number[], mnemo: string, tiny: boolean): Promise<void> => {
   const account = mnemonicToSecretKey(mnemo);
   const suggestedParams = await algoD.getTransactionParams().do();
   suggestedParams.flatFee = true;
@@ -17,6 +18,16 @@ const makeUserOptIn = async (assets: number[], mnemo: string): Promise<void> => 
     });
     await algoD.sendRawTransaction(signTransaction(optin, account.sk).blob).do();
     console.log(`User successfully opted-in asset n° ${assets[i]}`);
+  }
+
+  if(tiny){
+    const appOptIn = makeApplicationOptInTxnFromObject({
+      suggestedParams,
+      from: account.addr,
+      appIndex: tinyValidatorApp
+    })
+    await algoD.sendRawTransaction(signTransaction(appOptIn, account.sk).blob).do();
+    console.log(`User successfully opted-in Tinyman App`);
   }
 };
 export default makeUserOptIn;

@@ -15,10 +15,11 @@ class Router {
   tinyman: tinyProps;
   algofi: poolProps;
   pactfi: poolProps;
-  routerOptInA1?: boolean;
-  routerOptInA2?: boolean;
-  userOptInA1?: boolean;
-  userOptInA2?: boolean;
+  routerOptInA1?: boolean = true;
+  routerOptInA2?: boolean = true;
+  userOptInA1?: boolean = true;
+  userOptInA2?: boolean = true;
+  userOptInTiny?: boolean = true;
 
   constructor(asset1: number, asset2: number, mnemo: string) {
     if (arguments.length != 3) throw new Error("missing parameters");
@@ -48,6 +49,7 @@ class Router {
     const UserStatus = await getOptInStatus(this.asset1, this.asset2, mnemonicToSecretKey(this.mnemo).addr);
     this.userOptInA1 = UserStatus?.optedInAsset1;
     this.userOptInA2 = UserStatus?.optedInAsset2;
+    this.userOptInTiny = UserStatus?.optedInTinyApp;
   }
 
   // slippage in basis point: 0.1% = 10
@@ -67,15 +69,20 @@ class Router {
       this.routerOptInA2 = true;
     }
 
-    // if user hasn't opted-in the assets, it needs to
-    if (this.userOptInA1 === false || this.userOptInA2 === false) {
+    // if user hasn't opted-in the assets or the tiny app, it needs to
+    if (!this.userOptInA1 || !this.userOptInA2 || !this.userOptInTiny) {
       console.log("The user needs to opt-in the swapped assets");
       let assets: number[] = [];
-      if (this.userOptInA1 === false) assets.push(this.asset1);
-      if (this.userOptInA2 === false) assets.push(this.asset2);
-      await makeUserOptIn(assets, this.mnemo);
+      if (!this.userOptInA1) assets.push(this.asset1);
+      if (!this.userOptInA2) assets.push(this.asset2);
+      if (!this.userOptInTiny) {
+        await makeUserOptIn(assets, this.mnemo, true);
+      } else {
+        await makeUserOptIn(assets, this.mnemo, false);
+      }
       this.userOptInA1 = true;
       this.userOptInA2 = true;
+      this.userOptInTiny = true;
     }
 
     return await smartRoute({
