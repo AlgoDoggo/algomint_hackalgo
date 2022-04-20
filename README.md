@@ -12,9 +12,11 @@ This contract is a foundation. If and when the aforementioned marketplaces upgra
 **Python** must also be installed on your machine.  
 When a quote is routed to Tinyman, the module needs to retrieve the LogicSig of the corresponding Tinyman pool. Node will spawn a child process and run the python script from the Tinyman py sdk to get it.
 
+This is an ESM module.
+
 ### Usage and high level explanation
 
-This module runs on testnet.  
+This module runs on testnet.
 
 A router class is instantiated with the relevant trading pair and the user's mnemomic  
 `const router = new Router(asset1, asset2, mnemo)`
@@ -61,4 +63,22 @@ try {
   console.error(error.message);
 }
 
+```
+
+Output:
+
+```
+Your quote for 500 microAlgos against asset n°10458941
+Tinyman quote: 1012, Algofi quote: 980, Pactfi quote: 315
+Best quote from: Tinyman
+Swapped 500 microAlgos for 1006 token n°10458941 on Tinyman
+```
+
+And the reverse trade:
+
+```
+Your quote for 500 of asset n° 10458941 against microAlgos
+Tinyman quote: 245, Algofi quote: 252, Pactfi quote: 786
+Best quote from: Pactfi
+Swapped 500 of asset n° 10458941 for 786 microAlgos on Pactfi
 ```

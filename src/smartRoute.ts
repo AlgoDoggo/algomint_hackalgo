@@ -97,7 +97,7 @@ const smartRoute: smartRoute = async ({
       i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
     );
     console.log(
-      `Your quote for ${amount} ${assetIn === 0 ? "microAlgos" : "of your asset"} against ${
+      `Your quote for ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} against ${
         assetOut === 0 ? "microAlgos" : `asset n°${assetOut}`
       }`
     );

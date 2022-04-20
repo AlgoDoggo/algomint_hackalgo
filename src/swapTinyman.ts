@@ -95,7 +95,7 @@ export const swapTinyman = async ({
   const transactionResponse = await waitForConfirmation(algoD, t3.txID, 5);
   const { aamt: amountOut, amt: algoOut, xaid } = transactionResponse?.txn?.txn;
   console.log(
-    `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : "of your asset"} for ${amountOut ?? algoOut} ${
+    `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} for ${amountOut ?? algoOut} ${
       xaid ? `token n°${xaid}` : "microAlgos"
     } on Tinyman`
   );
