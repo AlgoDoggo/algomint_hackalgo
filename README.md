@@ -9,7 +9,8 @@ This contract is a foundation. If and when the aforementioned marketplaces upgra
 
 `npm install router_hackalgo`
 
-NodeJs must be installed on your machine as well as Python. When a quote is routed to Tinyman, the module needs to retrieve the LogicSig of the corresponding Tinyman pool. Node will spawn a child process and run the python script from the Tinyman py sdk to get it.
+**Python** must also be installed on your machine.  
+When a quote is routed to Tinyman, the module needs to retrieve the LogicSig of the corresponding Tinyman pool. Node will spawn a child process and run the python script from the Tinyman py sdk to get it.
 
 ### Usage and high level explanation
 
@@ -28,7 +29,7 @@ Swapping is then done with:
 
 `await router.swap({ amount: 500, asset: 10458941, slippage : 50 })`
 
-With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points from the quote we'll get.
+With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points (50 = 0.5%) from the quote we'll get.
 
 At this point, opt-ins will be sent if the router or the user need one. To get the router to opt-in an asset, on top of the appl call, 0.1 Algo are sent to its account to compensate for the increased minimum balance requirement.
 

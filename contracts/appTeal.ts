@@ -51,12 +51,6 @@ int CloseOut
 &&
 assert
 
-// Allow Opt-in.
-txn OnCompletion
-int OptIn
-==
-bnz allow
-
 // Allow bootstrap
 txna ApplicationArgs 0
 byte "optIn"
@@ -148,7 +142,7 @@ log
 
 
 // Here since i can't do the swap onchain because of current limitations on
-// Tinyman, Algofi and Pacti contract, I am going to send the asset back to the user
+// Tinyman, Algofi and Pacti contracts, I am going to send the asset back to the user
 // and do the swap in the front-end instead
 itxn_begin
 
