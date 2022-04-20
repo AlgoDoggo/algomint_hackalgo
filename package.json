@@ -1,8 +1,9 @@
 {
-  "name": "algomint_hackalgo",
-  "version": "1.0.1",
+  "name": "router_hackalgo",
+  "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "create-app": "ts-node ./examples/createApp.ts",
