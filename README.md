@@ -13,12 +13,14 @@ NodeJs must be installed on your machine as well as Python. When a quote is rout
 
 ### Usage and high level explanation
 
-First instantiate a router class with the relevant trading pairs and your mnemo  
+This module runs on testnet.  
+
+A router class is instantiated with the relevant trading pair and the user's mnemomic  
 `const router = new Router(asset1, asset2, mnemo)`
 
 Using the mnemo will allow us to route the order immediately after the contract returns without additional time getting a user to sign off on transactions.
 
-The router now needs to look on Tinyman, Algofi and Pactfi for pools corresponding to that asset pair.
+The router now needs to lookup Tinyman, Algofi and Pactfi for pools corresponding to that asset pair.
 
 `await router.loadPools()`
 
@@ -48,7 +50,7 @@ import Router from "router_hackalgo";
 
 const asset1 = 0 // Algo
 const asset2 = 10458941 // USDC;
-const menmo = "your 25 words"
+const mnemo = "your 25 words"
 
 try {
   const router = new Router(asset1, asset2, mnemo);
