@@ -3,11 +3,11 @@
 This module leverages a TEAL contract and NodeJs to find the best quotes and route orders appropriately.
 Current limitations on target pool contracts ( Teal < v6 means contract to contract calls are unsupported ) forces me to exit early from my contract, right after the quotes, and do the routing in NodeJs.
 
-The contract was written with future additions kept in mind. If and when the aforementioned marketplaces upgrade their contracts, we will be able to do end-to-end smart routing, atomically in the contract.
+This contract is a foundation. If and when the aforementioned marketplaces upgrade their logic, we will be able to add atomic, start-to-end smart routing in this contract.
 
 ### Usage and high level explanation
 
-First instantiate a router class with the relevant trading pairs and his mnemo  
+First instantiate a router class with the relevant trading pairs and your mnemo  
 `const router = new Router(asset1, asset2, mnemo)`
 
 Using the mnemo will allow us to route the order immediately after the contract returns without additional time getting a user to sign off on transactions.
@@ -18,27 +18,27 @@ The router now needs to look on Tinyman, Algofi and Pactfi for pools correspondi
 
 Swapping is then done with:
 
-`await router.swap({ amount: 500, asset: asset1, slippage : 50 })`
+`await router.swap({ amount: 500, asset: 10458941, slippage : 50 })`
 
 With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points from the quote we'll get.
 
-At this point, opt-ins will be sent if the router or the user need one. To get the router to opt-in an asset, on top of the appl call, 0.1 Algo are sent to its account to compensate for increased minimum balance requirement.
+At this point, opt-ins will be sent if the router or the user need one. To get the router to opt-in an asset, on top of the appl call, 0.1 Algo are sent to its account to compensate for the increased minimum balance requirement.
 
-The contract is then called with the relevant `accounts` and `foreignApps`. Pool fees are also sent in `appArgs`, as both Algofi and Pactfi have many fee tiers for their pools, and the contract needs to be made aware of it to get an accurate quote.  
+The contract is then called with the relevant `accounts`, `foreignApps` and `foreignAssets`. Pool fees are also sent in `appArgs`, as both Algofi and Pactfi have many fee tiers for their pools, and the contract needs to be made aware of it to get an accurate quote.  
 The asset will be also sent to the contract.
 
 At this point the contract gets a quote for each of the marketplaces and determines the optimal one.
 
-This is where we have to unfortunately return as we cannot yet send the trade from the contract.  
+This is where we have to return as we cannot yet send the trade from the contract.  
 Here the contract sends back the asset to the user. It also logs the quotes, which are fetched back in NodeJs. The trade to the best marketplace is sent immediately, as instructed by the contract output.
 
-It could be argued there is no reason to send the swapped asset to the contract if the contract then sends back that asset. I have made that design decision with the hope target marketplaces will support contract to contract calls soon enough, to be able to complete the contract with the trade execution.
+It could be argued there is no reason to send the swapped asset to the contract if the contract then sends back that asset. I have made that design decision with the hope target marketplaces will support contract to contract calls soon enough, so we can carry the trade atomically.
 
 ### Example
 
 ```
 import dotenv from "dotenv";
-import Router from "../src/router.js";
+import Router from "../index.js";
 dotenv.config();
 
 const asset1 = 0 // Algo

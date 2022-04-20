@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { USDC } from "../src/constants/constants.js";
-import { Router } from "../.";
+import Router from "../index.js";
 dotenv.config();
 
 const asset1 = 0;
