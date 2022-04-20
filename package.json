@@ -1,10 +1,10 @@
 {
   "name": "algomint_hackalgo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {    
+  "scripts": {
     "create-app": "ts-node ./examples/createApp.ts",
     "start": "nodemon ./examples/swap.ts"
   },
