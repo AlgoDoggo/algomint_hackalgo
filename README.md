@@ -37,15 +37,15 @@ It could be argued there is no reason to send the swapped asset to the contract 
 ### Example
 
 ```
-import dotenv from "dotenv";
-import Router from "../index.js";
-dotenv.config();
+
+import Router from "algomint_hackalgo";
 
 const asset1 = 0 // Algo
 const asset2 = 10458941 // USDC;
+const menmo = "your 25 words"
 
 try {
-  const router = new Router(asset1, asset2, process.env.Mnemo!);
+  const router = new Router(asset1, asset2, mnemo);
   await router.loadPools();
   await router.swap({ amount: 500, asset: asset1, slippage: 50 });
 } catch (error) {
