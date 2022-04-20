@@ -1,6 +1,0 @@
-src/**/*
-contracts/**/*
-examples/**/*
-index.ts
-nodemon.json
-.env

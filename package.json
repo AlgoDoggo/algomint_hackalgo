@@ -5,6 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/AlgoDoggo/algomint_hackalgo.git"
+  },
   "scripts": {
     "create-app": "ts-node ./examples/createApp.ts",
     "start": "nodemon ./examples/swap.ts"
