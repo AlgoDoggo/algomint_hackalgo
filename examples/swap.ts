@@ -1,8 +1,6 @@
-import { getApplicationAddress } from "algosdk";
 import dotenv from "dotenv";
-import { goBTC, goETH, USDC } from "../src/constants/constants.js";
-import Router from "../src/router.js";
-
+import { USDC } from "../src/constants/constants.js";
+import { Router } from "../.";
 dotenv.config();
 
 const asset1 = 0;
@@ -12,8 +10,6 @@ try {
   const router = new Router(asset1, asset2, process.env.Mnemo!);
   await router.loadPools();
   await router.swap({ amount: 500, asset: asset1, slippage: 50 });
-  
-
 } catch (error) {
   console.error(error.message);
 }

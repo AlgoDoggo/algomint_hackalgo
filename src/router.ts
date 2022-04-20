@@ -32,6 +32,7 @@ class Router {
     this.mnemo = mnemo;
   }
 
+  // get router up-to-date with tinyman, algofi and pactfi pools and apps
   async loadPools() {
     const { tinyman, algofi, pactfi } = await getAccounts([this.asset1, this.asset2]);
     this.tinyman = tinyman;
@@ -49,6 +50,7 @@ class Router {
     this.userOptInA2 = UserStatus?.optedInAsset2;
   }
 
+  // slippage in basis point: 0.1% = 10
   async swap({ amount, asset, slippage }) {
     if (asset != this.asset1 && asset != this.asset2) {
       throw new Error("Asset input does not match router's assets");
