@@ -31,7 +31,7 @@ Swapping is then done with:
 
 `await router.swap({ amount: 500, asset: 10458941, slippage : 50 })`
 
-With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points (50 = 0.5%) from the quote we'll get.
+With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points (50 = 0.5%) from the quote we get.
 
 At this point, opt-ins will be sent if the router or the user need one. To get the router to opt-in an asset, on top of the appl call, 0.1 Algo are sent to its account to compensate for the increased minimum balance requirement.
 

@@ -31,9 +31,9 @@ interface smartRoute {
 }
 
 const smartRoute: smartRoute = async ({
-  amount = 100,
-  assetIn = USDC,
-  assetOut = 0,
+  amount,
+  assetIn,
+  assetOut,
   tinyman,
   algofi,
   pactfi,
