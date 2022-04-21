@@ -81,4 +81,3 @@ def encode_varint(number):
 pool_logicsig = get_pool_logicsig(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
 print(pool_logicsig)
 sys.stdout.flush()
-quit()
