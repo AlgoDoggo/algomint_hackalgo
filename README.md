@@ -18,18 +18,25 @@ This is an ESM module.
 
 This module runs on testnet.
 
-A router class is instantiated with the relevant trading pair and the user's mnemomic  
-`const router = new Router(asset1, asset2, mnemo)`
+A router class is instantiated with the relevant trading pair and the user's mnemomic 
+
+```js
+const router = new Router(asset1, asset2, mnemo)
+```
 
 Using the mnemo will allow us to route the order immediately after the contract returns without additional time getting a user to sign off on transactions.
 
 The router now needs to lookup Tinyman, Algofi and Pactfi for pools corresponding to that asset pair.
 
-`await router.loadPools()`
+```js
+await router.loadPools()
+```
 
 Swapping is then done with:
 
-`await router.swap({ amount: 500, asset: 10458941, slippage : 50 })`
+```js
+await router.swap({ amount: 500, asset: 10458941, slippage : 50 })
+```
 
 With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points (50 = 0.5%) from the quote we get.
 
@@ -47,7 +54,7 @@ It could be argued there is no reason to send the swapped asset to the contract 
 
 ### Example
 
-```
+```js
 
 import Router from "router_hackalgo";
 
