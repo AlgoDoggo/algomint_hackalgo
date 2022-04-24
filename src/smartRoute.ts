@@ -8,9 +8,10 @@ import {
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
   signTransaction,
+  Transaction,
   waitForConfirmation,
 } from "algosdk";
-import { routerApp, tinyValidatorApp, USDC, zeroAddress } from "./constants/constants.js";
+import { routerApp, tinyValidatorApp, zeroAddress } from "./constants/constants.js";
 import swapAlgofi from "./swapAlgofi.js";
 import swapPactfi from "./swapPactfi.js";
 import swapTinyman from "./swapTinyman.js";
@@ -30,16 +31,7 @@ interface smartRoute {
   }): Promise<void>;
 }
 
-const smartRoute: smartRoute = async ({
-  amount,
-  assetIn,
-  assetOut,
-  tinyman,
-  algofi,
-  pactfi,
-  slippage = 50,
-  mnemo,
-}) => {
+const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algofi, pactfi, slippage = 50, mnemo }) => {
   try {
     if (!tinyman && !algofi && !pactfi) throw new Error("No pools found for this asset pair");
     const account = mnemonicToSecretKey(mnemo);
@@ -47,7 +39,7 @@ const smartRoute: smartRoute = async ({
     suggestedParams.flatFee = true;
     suggestedParams.fee = 1000;
 
-    let tx0;
+    let tx0: Transaction;
     if (assetIn === 0) {
       tx0 = makePaymentTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -93,7 +85,7 @@ const smartRoute: smartRoute = async ({
     const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
     await algoD.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
     const transactionResponse = await waitForConfirmation(algoD, signedTxs[1].txID, 5);
-    const logs = transactionResponse?.logs?.map((l, i) =>
+    const logs = transactionResponse?.logs?.map((l: Buffer, i: number) =>
       i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
     );
     console.log(

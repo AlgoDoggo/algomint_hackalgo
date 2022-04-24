@@ -7,17 +7,8 @@ const algofiUrl = "https://thf1cmidt1.execute-api.us-east-2.amazonaws.com/Prod/a
 const pactfiUrl = "https://api.testnet.pact.fi/api/pools";
 const indexerUrl = "https://algoindexer.testnet.algoexplorerapi.io/v2";
 
-
-interface Accounts {
-  (assets: number[]): Promise<{
-    tinyman: tinyProps;
-    algofi: poolProps;
-    pactfi: poolProps;
-  }>;
-}
-
-const getAccounts: Accounts = async (assets) => {
-  let tinyman, algofi, pactfi;
+const getAccounts = async (assets: number[]) => {
+  let tinyman: tinyProps, algofi: poolProps, pactfi: poolProps;
 
   tinyman: {
     try {
