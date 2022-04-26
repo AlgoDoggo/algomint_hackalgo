@@ -1,7 +1,7 @@
 export const tinyQuoteTeal = `
 
 // check price on Tinyman
-// first let's fetch the pool suplly amounts and substract the redeem amounts in pool local state
+// first let's fetch the pool supply amounts and substract the redeem amounts in pool local state
 
 txna Accounts 1 // if the zero address is sent in accounts array, it means there is no pool for that asset pair
 global ZeroAddress
@@ -26,7 +26,7 @@ balance // algo balance
 
 
 tiny_assetIn_getOutstanding:
-// get outsanding algo balance in tiny pool
+// get outstanding algo balance in tiny pool
 txna Accounts 1
 txna Applications 1 // tinyman validator app
 byte "o"

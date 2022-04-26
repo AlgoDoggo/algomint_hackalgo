@@ -32,7 +32,7 @@ app_global_get_ex
 pop
 store 13
 
-// Patcfi pools have many fee tiers, the most common one is 30 or 0.3%
+// Pactfi pools have many fee tiers, the most common one is 30 or 0.3%
 int 10000
 txna ApplicationArgs 2
 btoi
