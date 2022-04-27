@@ -1,6 +1,8 @@
 import { algofiQuoteTeal } from "./branches/algofiQuoteTeal.js";
 import { optIn } from "./branches/optInTeal.js";
 import { pactfiQuote } from "./branches/pactfiQuoteTeal.js";
+import { pactfiSwap } from "./branches/pactfiSwapTeal.js";
+import { sendAsset } from "./branches/sendAssetTeal.js";
 import { tinyQuoteTeal } from "./branches/tinyQuoteTeal.js";
 
 export const appTeal = () : string => `
@@ -29,6 +31,8 @@ export const appTeal = () : string => `
 // 15 : pactfi Pool fee, usually 9970 (0.3%)
 
 // 16 : best quote: either "Tinyman", "Algofi", "Pactfi"
+
+
 
 #pragma version 6
 
@@ -140,46 +144,26 @@ swap
 concat
 log
 
+load 16
+byte "Pactfi"
+==
+bnz pactfi_swap
 
-// Here since i can't do the swap onchain because of current limitations on
-// Tinyman, Algofi and Pacti contracts, I am going to send the asset back to the user
-// and do the swap in the front-end instead
-itxn_begin
+err
 
-load 1 // ID of asset-out
-bz send_back_algos
-
-int axfer
-itxn_field TypeEnum
-load 1 
-itxn_field XferAsset
-load 2 // amount of asset-in
-itxn_field AssetAmount
-txn Sender
-itxn_field AssetReceiver
-
-b finish_redeem
-
-send_back_algos:
-
-int pay
-itxn_field TypeEnum
-load 2 // amount of asset-in
-itxn_field Amount
-txn Sender
-itxn_field Receiver
-
-finish_redeem:
-int 0
-itxn_field Fee
-
-itxn_submit
-
-allow:
-int 1
-return
+/////// branches
 
 optIn:
 ${optIn}
+
+pactfi_swap:
+${pactfiSwap}
+
+send_asset_to_user:
+${sendAsset}
+
+
+allow:
+int 1
 
 `;

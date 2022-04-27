@@ -60,14 +60,15 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
     const tx1 = makeApplicationNoOpTxnFromObject({
       suggestedParams: {
         ...suggestedParams,
-        fee: suggestedParams.fee * 2, //(fee is 2x because I have to send back the asset I'm sending to the contract
-      },
+        fee: suggestedParams.fee * (2+3), //(fee is 2x because I have to send back the asset I'm sending to the contract
+      },//+3 for pactfi swap
       from: account.addr,
       appIndex: routerApp,
       appArgs: [
         encodeUint64(assetOut), // asset-out ID - 0 if algo
         encodeUint64(algofi?.fee ?? 0), // 10, 25 or 75
         encodeUint64(pactfi?.fee ?? 0), // any number between 1-100
+        encodeUint64(0), // slippage protection aka minimum amount out
       ],
       // tinyman, algofi, pactfi
       accounts: [
@@ -95,7 +96,7 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
     );
     console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
     console.log(logs[6]);
-    if (logs[6].slice(17) == "Tinyman") {
+    if (false && logs[6].slice(17) == "Tinyman") {
       await swapTinyman({
         assetIn,
         amount,
@@ -106,7 +107,7 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
         minAmountOut: Math.floor((logs[1] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (logs[6].slice(17) == "Algofi") {
+    } else if (false && logs[6].slice(17) == "Algofi") {
       await swapAlgofi({
         assetIn,
         amount,
@@ -116,7 +117,7 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
         minAmountOut: Math.floor((logs[3] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (logs[6].slice(17) == "Pactfi") {
+    } else if (true || logs[6].slice(17) == "Pactfi") {
       await swapPactfi({
         assetIn,
         amount,
