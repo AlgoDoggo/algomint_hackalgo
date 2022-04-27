@@ -1,9 +1,11 @@
 import { algofiQuoteTeal } from "./branches/algofiQuoteTeal.js";
+import { algofiSwap } from "./branches/algofiSwapTeal.js";
 import { optIn } from "./branches/optInTeal.js";
 import { pactfiQuote } from "./branches/pactfiQuoteTeal.js";
 import { pactfiSwap } from "./branches/pactfiSwapTeal.js";
 import { sendAsset } from "./branches/sendAssetTeal.js";
 import { tinyQuoteTeal } from "./branches/tinyQuoteTeal.js";
+import { tinySwap } from "./branches/tinySwapTeal.js";
 
 export const appTeal = () : string => `
 // scratch space :
@@ -149,9 +151,15 @@ byte "Pactfi"
 ==
 bnz pactfi_swap
 
-err
+load 16
+byte "Algofi"
+==
+bnz algofi_swap
 
-/////// branches
+b tinyman_swap // if it's neither Pactfi nor Algofi it's Tinyman
+
+
+///////////////////// branches
 
 optIn:
 ${optIn}
@@ -159,9 +167,20 @@ ${optIn}
 pactfi_swap:
 ${pactfiSwap}
 
+algofi_swap:
+${algofiSwap}
+
+tinyman_swap:
+${tinySwap}
+
 send_asset_to_user:
 ${sendAsset}
 
+finish_send_back:
+int 0
+itxn_field Fee
+
+itxn_submit
 
 allow:
 int 1

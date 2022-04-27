@@ -11,7 +11,7 @@ import {
   Transaction,
   waitForConfirmation,
 } from "algosdk";
-import { routerApp, tinyValidatorApp, zeroAddress } from "./constants/constants.js";
+import { algofi_managerID_dex, routerApp, tinyValidatorApp, zeroAddress } from "./constants/constants.js";
 import swapAlgofi from "./swapAlgofi.js";
 import swapPactfi from "./swapPactfi.js";
 import swapTinyman from "./swapTinyman.js";
@@ -78,24 +78,24 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
       ],
       // asset-in && asset-out
       foreignAssets: [assetIn, assetOut],
-      // tinyman, algofi, pactfi
-      foreignApps: [tinyValidatorApp, algofi?.app ?? 0, pactfi?.app ?? 0],
+      // tinyman, algofi, pactfi, algofi_manager_app
+      foreignApps: [tinyValidatorApp, algofi?.app ?? 0, pactfi?.app ?? 0, algofi_managerID_dex],
     });
     const transactions = [tx0, tx1];
     assignGroupID(transactions);
-    const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
-    await algoD.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
-    const transactionResponse = await waitForConfirmation(algoD, signedTxs[1].txID, 5);
-    const logs = transactionResponse?.logs?.map((l: Buffer, i: number) =>
-      i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
-    );
-    console.log(
-      `Your quote for ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} against ${
-        assetOut === 0 ? "microAlgos" : `asset n°${assetOut}`
-      }`
-    );
-    console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
-    console.log(logs[6]);
+    // const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
+    // await algoD.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
+    // const transactionResponse = await waitForConfirmation(algoD, signedTxs[1].txID, 5);
+    // const logs = transactionResponse?.logs?.map((l: Buffer, i: number) =>
+    //   i % 2 === 0 ? l.toString() : decodeUint64(new Uint8Array(Buffer.from(l)), "mixed")
+    // );
+    // console.log(
+    //   `Your quote for ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} against ${
+    //     assetOut === 0 ? "microAlgos" : `asset n°${assetOut}`
+    //   }`
+    // );
+    // console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
+    // console.log(logs[6]);
     if (false && logs[6].slice(17) == "Tinyman") {
       await swapTinyman({
         assetIn,
@@ -107,14 +107,14 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
         minAmountOut: Math.floor((logs[1] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (false && logs[6].slice(17) == "Algofi") {
+    } else if (true || logs[6].slice(17) == "Algofi") {
       await swapAlgofi({
         assetIn,
         amount,
         app: algofi?.app!,
         suggestedParams,
         assetOut,
-        minAmountOut: Math.floor((logs[3] * (10000 - slippage)) / 10000),
+        minAmountOut:0,// Math.floor((logs[3] * (10000 - slippage)) / 10000),
         mnemo,
       });
     } else if (true || logs[6].slice(17) == "Pactfi") {

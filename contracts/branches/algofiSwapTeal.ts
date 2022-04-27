@@ -1,8 +1,8 @@
-export const pactfiSwap = `
+export const algofiSwap = `
 itxn_begin
 
 load 1 // ID of asset-out
-bz pact_swap_algos
+bz algofi_swap_algos
 
 int axfer
 itxn_field TypeEnum
@@ -10,21 +10,21 @@ load 1
 itxn_field XferAsset
 load 2 // amount of asset-in
 itxn_field AssetAmount
-txna Accounts 3 // pact pool
+txna Accounts 2 // algofi pool
 itxn_field AssetReceiver
 
-b finish_pact_swap
+b finish_algofi_swap
 
-pact_swap_algos:
+algofi_swap_algos:
 
 int pay
 itxn_field TypeEnum
 load 2 // amount of asset-in
 itxn_field Amount
-txna Accounts 3 // pact pool
+txna Accounts 2 // algofi pool
 itxn_field Receiver
 
-finish_pact_swap:
+finish_algofi_swap:
 int 0
 itxn_field Fee
 
@@ -36,24 +36,16 @@ global MinTxnFee
 int 0 // appl fee is 2x 
 *
 itxn_field Fee
-txna Applications 3
+txna Applications 2
 itxn_field ApplicationID
-byte "SWAP"
+byte "sef"
 itxn_field ApplicationArgs
 txna ApplicationArgs 3 // min amount out
 itxn_field ApplicationArgs
-load 1
 load 3
-dup2
->
-select // Pactfi foreignAssets array, smaller asset first
-itxn_field Assets
-load 1
-load 3
-dup2
-<
-select // then is the bigger asset
-itxn_field Assets
+itxn_field Assets // algofi foreignAssets array, asset out only
+txna Applications 4 // algofi_manager_app
+itxn_field Applications
 
 itxn_submit
 

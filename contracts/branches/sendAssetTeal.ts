@@ -1,42 +1,7 @@
 export const sendAsset = `
 
-// if the best quote is from Tinyman send back the asset-in to do the trade in the front-end
-// else send back the result of the successful swap (Pactfi && Algofi)
-load 16
-byte "Tinyman"
-==
-bz swap_successful
+// Send back the result of the successful swap (Pactfi && Algofi)
 
-
-itxn_begin
-
-load 1 // ID of asset-in
-bz redeem_algos
-
-int axfer
-itxn_field TypeEnum
-load 1 
-itxn_field XferAsset
-load 2 // amount of asset-in
-itxn_field AssetAmount
-txn Sender
-itxn_field AssetReceiver
-
-b finish_send_back
-
-redeem_algos:
-
-int pay
-itxn_field TypeEnum
-load 2 // amount of asset-in
-itxn_field Amount
-txn Sender
-itxn_field Receiver
-
-b finish_send_back
-
-
-swap_successful:
 itxn_begin
 
 load 3 // ID of asset-out
@@ -70,12 +35,5 @@ min_balance
 itxn_field Amount
 txn Sender
 itxn_field Receiver
-
-
-finish_send_back:
-int 0
-itxn_field Fee
-
-itxn_submit
 
 `
