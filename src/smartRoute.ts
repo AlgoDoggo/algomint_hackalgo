@@ -16,16 +16,16 @@ import swapAlgofi from "./swapAlgofi.js";
 import swapPactfi from "./swapPactfi.js";
 import swapTinyman from "./swapTinyman.js";
 import { algoD } from "./adapters/algoD.js";
-import { poolProps, tinyProps } from "./types/types.js";
+import { PoolProps, TinyProps } from "./types/types.js";
 
 interface smartRoute {
   ({}: {
-    amount: number;
+    amount: number | bigint;
     assetIn: number;
     assetOut: number;
-    tinyman: tinyProps;
-    algofi: poolProps;
-    pactfi: poolProps;
+    tinyman: TinyProps;
+    algofi: PoolProps;
+    pactfi: PoolProps;
     slippage: number;
     mnemo: string;
   }): Promise<void>;
@@ -123,17 +123,17 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
         minAmountOut: Math.floor((logs[1] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (false && logs[6].slice(17) == "Algofi") {
+    } else if (logs[6].slice(17) == "Algofi") {
       await swapAlgofi({
         assetIn,
         amount,
         app: algofi?.app!,
         suggestedParams,
         assetOut,
-        minAmountOut: 0, // Math.floor((logs[3] * (10000 - slippage)) / 10000),
+        minAmountOut: Math.floor((logs[3] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (false && logs[6].slice(17) == "Pactfi") {
+    } else if (logs[6].slice(17) == "Pactfi") {
       await swapPactfi({
         assetIn,
         amount,

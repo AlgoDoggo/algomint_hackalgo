@@ -1,5 +1,5 @@
 import axios from "axios";
-import { poolProps, tinyProps } from "../types/types.js";
+import { AlgoFiResult, PoolProps, TinyProps } from "../types/types.js";
 import { algofiFee } from "../utils/algofiFee.js";
 
 const tinyUrl = "https://testnet.analytics.tinyman.org/api/v1/pools/?is_pool_member=true&limit=all&verified_only=false";
@@ -8,7 +8,7 @@ const pactfiUrl = "https://api.testnet.pact.fi/api/pools";
 const indexerUrl = "https://algoindexer.testnet.algoexplorerapi.io/v2";
 
 const getAccounts = async (assets: number[]) => {
-  let tinyman: tinyProps, algofi: poolProps, pactfi: poolProps;
+  let tinyman: TinyProps, algofi: PoolProps, pactfi: PoolProps;
 
   tinyman: {
     try {
@@ -20,7 +20,7 @@ const getAccounts = async (assets: number[]) => {
         );
       });
       // in Tinyman there is only one pool for any given trading pair
-      const result = tinyData.results.find((r) => r["asset_1"].id == assets[1] && r["asset_2"].id == assets[0]);
+      const result = tinyData.results.find((r: any) => r["asset_1"].id == assets[1] && r["asset_2"].id == assets[0]);
       if (!result) break tinyman;
       tinyman = { pool: result.address, lt: Number(result["liquidity_asset"].id) };
     } catch (error) {
@@ -37,7 +37,7 @@ const getAccounts = async (assets: number[]) => {
             : error?.message
         );
       });
-      const results = algofiData.pools.filter(
+      const results = (algofiData.pools as AlgoFiResult[]).filter(
         (r) => (assets[0] === 0 ? r["asset_1"] == 1 : r["asset_1"] == assets[0]) && r["asset_2"] == assets[1]
       );
 
@@ -61,12 +61,12 @@ const getAccounts = async (assets: number[]) => {
           );
         });
         const state = data?.application?.params?.["global-state"];
-        const supply1 = state.find((g) => g.key === "YjE=")?.value?.uint;
-        const supply2 = state.find((g) => g.key === "YjI=")?.value?.uint;
+        const supply1 = state.find((g: any) => g.key === "YjE=")?.value?.uint;
+        const supply2 = state.find((g: any) => g.key === "YjI=")?.value?.uint;
         results[i].liquidity = BigInt(supply1) * BigInt(supply2);
       }
 
-      const mostLiquid = results.sort((a, b) =>
+      const mostLiquid = results?.sort((a, b) =>
         a.liquidity > b.liquidity ? -1 : a.liquidity > b.liquidity ? 1 : 0
       )[0];
       algofi = { app: mostLiquid.id, fee: algofiFee(mostLiquid) };
@@ -103,12 +103,12 @@ const getAccounts = async (assets: number[]) => {
           );
         });
         const state = data?.application?.params?.["global-state"];
-        const supply1 = state.find((g) => g.key === Buffer.from("A", "utf8").toString("base64"))?.value?.uint;
-        const supply2 = state.find((g) => g.key === Buffer.from("B", "utf8").toString("base64"))?.value?.uint;
+        const supply1 = state.find((g: any) => g.key === Buffer.from("A", "utf8").toString("base64"))?.value?.uint;
+        const supply2 = state.find((g: any) => g.key === Buffer.from("B", "utf8").toString("base64"))?.value?.uint;
         results[i].liquidity = BigInt(supply1) * BigInt(supply2);
       }
 
-      const mostLiquid = results.sort((a, b) =>
+      const mostLiquid = results.sort((a: any, b: any) =>
         a.liquidity > b.liquidity ? -1 : a.liquidity > b.liquidity ? 1 : 0
       )[0];
       pactfi = { app: Number(mostLiquid.appid), fee: mostLiquid.fee_bps };

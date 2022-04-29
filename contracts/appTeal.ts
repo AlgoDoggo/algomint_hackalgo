@@ -179,6 +179,12 @@ lets_swap:
 gload 1 3
 store 3
 
+
+///////////////////////////////////// circuit-breaker
+b tinyman_swap 
+////////////////////////////////////// remove line above after protocol upgrades
+
+
 // 16th scratch space value of first app call
 gload 1 16
 byte "Pactfi"
@@ -215,6 +221,7 @@ int 0
 itxn_field Fee
 
 itxn_submit
+
 
 allow:
 int 1

@@ -1,7 +1,7 @@
 import getAccounts from "./helpers/getAccounts.js";
 import getOptInStatus from "./helpers/getOptInStatus.js";
 import smartRoute from "./smartRoute.js";
-import { poolProps, tinyProps } from "./types/types.js";
+import { PoolProps, RouterSwap, TinyProps } from "./types/types.js";
 import { sortAssets } from "./utils/sortAssets.js";
 import makeRouterOptIn from "./makeRouterOptIn.js";
 import { getApplicationAddress, mnemonicToSecretKey } from "algosdk";
@@ -12,9 +12,9 @@ class Router {
   asset1: number = 0;
   asset2: number;
   mnemo: string;
-  tinyman: tinyProps;
-  algofi: poolProps;
-  pactfi: poolProps;
+  tinyman: TinyProps;
+  algofi: PoolProps;
+  pactfi: PoolProps;
   routerOptInA1?: boolean = true;
   routerOptInA2?: boolean = true;
   userOptInA1?: boolean = true;
@@ -53,7 +53,7 @@ class Router {
   }
 
   // slippage in basis point: 0.1% = 10
-  async swap({ amount, asset, slippage }) {
+  async swap({ amount, asset, slippage }: RouterSwap) {
     if (asset != this.asset1 && asset != this.asset2) {
       throw new Error("Asset input does not match router's assets");
     }
