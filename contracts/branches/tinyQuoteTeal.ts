@@ -59,7 +59,7 @@ balance // algo balance
 tiny_assetOut_getOutstanding:
 // get outstanding amount in tiny pool local state
 txna Accounts 1
-txna Applications 1 // tinyman validator app
+txna Applications 1
 byte "o"
 load 3
 itob

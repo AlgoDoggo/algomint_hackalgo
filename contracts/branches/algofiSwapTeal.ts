@@ -10,7 +10,7 @@ load 1
 itxn_field XferAsset
 load 2 // amount of asset-in
 itxn_field AssetAmount
-txna Accounts 2 // algofi pool
+txna Accounts 1 // algofi pool
 itxn_field AssetReceiver
 
 b finish_algofi_swap
@@ -21,7 +21,7 @@ int pay
 itxn_field TypeEnum
 load 2 // amount of asset-in
 itxn_field Amount
-txna Accounts 2 // algofi pool
+txna Accounts 1 // algofi pool
 itxn_field Receiver
 
 finish_algofi_swap:
@@ -36,15 +36,15 @@ global MinTxnFee
 int 0 // appl fee is 2x 
 *
 itxn_field Fee
-txna Applications 2
+txna Applications 1
 itxn_field ApplicationID
 byte "sef"
 itxn_field ApplicationArgs
-txna ApplicationArgs 3 // min amount out
+txna ApplicationArgs 0 // min amount out
 itxn_field ApplicationArgs
 load 3
 itxn_field Assets // algofi foreignAssets array, asset out only
-txna Applications 4 // algofi_manager_app
+txna Applications 3 // algofi_manager_app
 itxn_field Applications
 
 itxn_submit

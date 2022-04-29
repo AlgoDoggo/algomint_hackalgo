@@ -10,7 +10,7 @@ load 1
 itxn_field XferAsset
 load 2 // amount of asset-in
 itxn_field AssetAmount
-txna Accounts 3 // pact pool
+txna Accounts 2 // pact pool
 itxn_field AssetReceiver
 
 b finish_pact_swap
@@ -21,7 +21,7 @@ int pay
 itxn_field TypeEnum
 load 2 // amount of asset-in
 itxn_field Amount
-txna Accounts 3 // pact pool
+txna Accounts 2 // pact pool
 itxn_field Receiver
 
 finish_pact_swap:
@@ -36,14 +36,14 @@ global MinTxnFee
 int 0 // appl fee is 2x 
 *
 itxn_field Fee
-txna Applications 3
+txna Applications 2
 itxn_field ApplicationID
 byte "SWAP"
 itxn_field ApplicationArgs
-txna ApplicationArgs 3 // min amount out
+txna ApplicationArgs 0 // min amount out
 itxn_field ApplicationArgs
 load 1
-load 3
+load 3 // for the id of asset-out this was evaluated in the previous app call
 dup2
 >
 select // Pactfi foreignAssets array, smaller asset first

@@ -8,7 +8,7 @@ import { tinyQuoteTeal } from "./branches/tinyQuoteTeal.js";
 import { tinySwap } from "./branches/tinySwapTeal.js";
 
 export const appTeal = () : string => `
-// scratch space :
+// scratch space gtxn 1 :
 // 1 : asset-in ID, 0 if algo
 // 2 : asset-in amount
 // 3 : asset-out ID
@@ -57,12 +57,6 @@ int CloseOut
 &&
 assert
 
-// Allow bootstrap
-txna ApplicationArgs 0
-byte "optIn"
-==
-bnz optIn
-
 //Making sure the assets or algos are coming to this account
 global CurrentApplicationAddress
 gtxn 0 AssetReceiver
@@ -71,6 +65,28 @@ gtxn 0 TypeEnum
 int pay
 ==
 select
+==
+assert
+
+// Allow bootstrap and router opting-in assets
+txna ApplicationArgs 0
+byte "optIn"
+==
+global GroupSize
+int 2
+==
+&&
+bnz optIn
+
+// The rest of the app works with a group of 3
+global GroupSize
+int 3
+==
+assert
+
+// let's verify the quote app call (gtxn 1) and swap app call (gtxn 2) are both calling here
+gtxn 1 ApplicationID
+gtxn 2 ApplicationID
 ==
 assert
 
@@ -91,6 +107,14 @@ int pay
 ==
 select
 store 2
+
+
+// 3d place in the group is the app call to do the swapping
+txn GroupIndex
+int 2
+==
+bnz lets_swap
+
 
 // store asset-out ID
 txna ApplicationArgs 0
@@ -146,12 +170,22 @@ swap
 concat
 log
 
-load 16
+// log is complete, let's return and do the swap in the next app call
+b allow
+
+lets_swap:
+
+// getting asset-out id from previous app call
+gload 1 3
+store 3
+
+// 16th scratch space value of first app call
+gload 1 16
 byte "Pactfi"
 ==
 bnz pactfi_swap
 
-load 16
+gload 1 16
 byte "Algofi"
 ==
 bnz algofi_swap

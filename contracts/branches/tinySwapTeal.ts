@@ -1,4 +1,5 @@
 export const tinySwap = `
+// tinyman swap is done in the front-end, let's send back the asset to the user.
 itxn_begin
 
 load 1 // ID of asset-in
