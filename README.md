@@ -18,10 +18,10 @@ This is an ESM module.
 
 This module runs on testnet.
 
-A router class is instantiated with the relevant trading pair and the user's mnemomic 
+A router class is instantiated with the relevant trading pair and the user's mnemomic
 
 ```js
-const router = new Router(asset1, asset2, mnemo)
+const router = new Router(asset1, asset2, mnemo);
 ```
 
 Using the mnemo will allow us to route the order immediately after the contract returns without additional time getting a user to sign off on transactions.
@@ -29,13 +29,13 @@ Using the mnemo will allow us to route the order immediately after the contract 
 The router now needs to lookup Tinyman, Algofi and Pactfi for pools corresponding to that asset pair.
 
 ```js
-await router.loadPools()
+await router.loadPools();
 ```
 
 Swapping is then done with:
 
 ```js
-await router.swap({ amount: 500, asset: 10458941, slippage : 50 })
+await router.swap({ amount: 500, asset: 10458941, slippage: 50 });
 ```
 
 With amount in microunits of the asset, asset being the asset that is being sent to trade and slippage the tolerance in basis points (50 = 0.5%) from the quote we get.
@@ -55,12 +55,11 @@ It could be argued there is no reason to send the swapped asset to the contract 
 ### Example
 
 ```js
-
 import Router from "router_hackalgo";
 
-const asset1 = 0 // Algo
-const asset2 = 10458941 // USDC;
-const mnemo = "your 25 words"
+const asset1 = 0; // Algo
+const asset2 = 10458941; // USDC;
+const mnemo = "your 25 words";
 
 try {
   const router = new Router(asset1, asset2, mnemo);
@@ -69,7 +68,6 @@ try {
 } catch (error) {
   console.error(error.message);
 }
-
 ```
 
 Output:
@@ -89,3 +87,41 @@ Tinyman quote: 245, Algofi quote: 252, Pactfi quote: 786
 Best quote from: Pactfi
 Swapped 500 of asset n° 10458941 for 786 microAlgos on Pactfi
 ```
+
+---
+
+### ABI
+
+#### Smart routing
+
+tx 0 : Pay / axfer, swap amount to the router address
+
+tx 1 : NoOp appl call
+
+- appArgs: [ assetOut ID, algofi pool fee in basis points, pactfi pool fee in basis points ]
+- accounts: [ tinymanPool ?? zeroAddress, algofiPool ?? zeroAddress, pactfiPool ?? zeroAddress ]
+- foreignAssets: [ asset-in, asset-out ] // Algo = 0
+- foreignApps: [ tinyman validator app, algofi?.app ?? 0, pactfi?.app ?? 0 ]
+- appIndex: router app
+
+tx 2 : NoOp appl call
+
+- fee : minFee \* 5 (tbd)
+- appArgs: [ minimum amount out ]
+- accounts: [ algofiPool ?? zeroAddress, pactfiPool ?? zeroAddress ]
+- foreignAssets: [ asset-in, asset-out ] // Algo = 0
+- foreignApps: [ algofi?.app ?? 0, pactfi?.app ?? 0, algofi manager app ]
+- appIndex: router app
+
+#### Router opt-in
+
+tx 0 : Pay
+
+- amount: Assets array length \* 10 \*\* 5
+- to : router address
+
+tx 1 : NoOp appl call
+
+- appArgs: [ "optIn" ]
+- foreignAssets : [ Assets ]
+- appIndex: router app
