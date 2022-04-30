@@ -173,6 +173,7 @@ log
 // log is complete, let's return and do the swap in the next app call
 b allow
 
+
 lets_swap:
 
 // getting asset-out id from previous app call
@@ -180,7 +181,7 @@ gload 1 3
 store 3
 
 
-///////////////////////////////////// circuit-breaker
+///////////////////////////////////// bypass
 b tinyman_swap 
 ////////////////////////////////////// remove line above after protocol upgrades
 

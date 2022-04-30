@@ -1,9 +1,11 @@
 ### Smart Router for Tinyman, Algofi and Pactfi pools
 
 This module leverages a TEAL contract and NodeJs to find the best quotes and route orders appropriately.
-Current limitations on target pool contracts ( Teal < v6 means contract to contract calls are unsupported ) forces me to exit early from my contract, right after the quotes, and do the routing in NodeJs.
+Current limitations on target pool contracts ( Teal < v6 means contract to contract calls are unsupported ) forces me to exit early from my contract, and do the routing in NodeJs.
 
-This contract is a foundation. If and when the aforementioned marketplaces upgrade their logic, we will be able to add atomic, start-to-end smart routing in this contract.
+Algorand's next protocol upgrade should include the ability to make contract to contract calls for all > v4 contracts. Once this happens Algofi and Pactfi will support quote-to-swap atomic smart routing, Tinyman will still require the trade being sent from the front-end, due to its app + LogicSig design.
+
+The logic for Algofi and Pactfi swap is already written in the contracts, I have simply added a bypass, to be removed once the protocol upgrades.
 
 ### Installation
 
@@ -49,8 +51,6 @@ At this point the contract gets a quote for each of the marketplaces and determi
 
 This is where we have to return as we cannot yet send the trade from the contract.  
 Here the contract sends back the asset to the user. It also logs the quotes, which are fetched back in NodeJs. The trade to the best marketplace is sent immediately, as instructed by the contract output.
-
-It could be argued there is no reason to send the swapped asset to the contract if the contract then sends back that asset. I have made that design decision with the hope target marketplaces will support contract to contract calls soon enough, so we can carry the trade atomically.
 
 ### Example
 
@@ -101,7 +101,7 @@ tx 1 : NoOp appl call
 - appArgs: [ assetOut ID, algofi pool fee in basis points, pactfi pool fee in basis points ]
 - accounts: [ tinymanPool ?? zeroAddress, algofiPool ?? zeroAddress, pactfiPool ?? zeroAddress ]
 - foreignAssets: [ asset-in, asset-out ] // Algo = 0
-- foreignApps: [ tinyman validator app, algofi?.app ?? 0, pactfi?.app ?? 0 ]
+- foreignApps: [ tinyman validator app, algofi.app ?? 0, pactfi.app ?? 0 ]
 - appIndex: router app
 
 tx 2 : NoOp appl call
@@ -110,7 +110,7 @@ tx 2 : NoOp appl call
 - appArgs: [ minimum amount out ]
 - accounts: [ algofiPool ?? zeroAddress, pactfiPool ?? zeroAddress ]
 - foreignAssets: [ asset-in, asset-out ] // Algo = 0
-- foreignApps: [ algofi?.app ?? 0, pactfi?.app ?? 0, algofi manager app ]
+- foreignApps: [ algofi.app ?? 0, pactfi.app ?? 0, algofi manager app ]
 - appIndex: router app
 
 #### Router opt-in
@@ -123,5 +123,5 @@ tx 0 : Pay
 tx 1 : NoOp appl call
 
 - appArgs: [ "optIn" ]
-- foreignAssets : [ Assets ]
+- foreignAssets : Assets as number[]
 - appIndex: router app
