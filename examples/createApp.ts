@@ -23,7 +23,7 @@ const createApp = async () => {
   suggestedParams.flatFee = true;
   suggestedParams.fee = 1000;
 
-  const compileApp = await algoD.compile(appTeal()).do();
+  const compileApp = await algoD.compile(appTeal).do();
 
   const clearState = fs.readFileSync(new URL("../contracts/clearProg.teal", import.meta.url), "utf8");
   const compiledClearProg = await algoD.compile(clearState).do();

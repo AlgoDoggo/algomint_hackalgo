@@ -7,7 +7,7 @@ import { sendAsset } from "./branches/sendAssetTeal.js";
 import { tinyQuoteTeal } from "./branches/tinyQuoteTeal.js";
 import { tinySwap } from "./branches/tinySwapTeal.js";
 
-export const appTeal = () : string => `
+export const appTeal = `
 // scratch space gtxn 1 :
 // 1 : asset-in ID, 0 if algo
 // 2 : asset-in amount
@@ -135,15 +135,9 @@ ${pactfiQuote}
 
 // Verify at least one of the quote is not zero
 load 6
-int 0
-!=
 load 9
-int 0
-!=
 ||
 load 14
-int 0
-!=
 ||
 assert
 
