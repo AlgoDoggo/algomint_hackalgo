@@ -65,7 +65,7 @@ const swapAlgofi = async ({
   await algoD.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
   const transactionResponse = await waitForConfirmation(algoD, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t: any) => t.txn);
-  const { aamt: amountOut, amt: algoOut, xaid } = innerTX[0]?.txn;
+  const { aamt: amountOut, amt: algoOut, xaid } = innerTX[0].txn;
   console.log(
     `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} for ${amountOut ?? algoOut} ${
       xaid ? `token n°${xaid}` : "microAlgos"

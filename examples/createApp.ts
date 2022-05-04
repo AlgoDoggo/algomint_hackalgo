@@ -40,9 +40,9 @@ const createApp = async () => {
     onComplete: OnApplicationComplete.NoOpOC,
   });
 
-  let txSigned = tx.signTxn(account.sk);
-  let { txId } = await algoD.sendRawTransaction(txSigned).do();
-  let transactionResponse = await waitForConfirmation(algoD, txId, 5);
+  const txSigned = tx.signTxn(account.sk);
+  const { txId } = await algoD.sendRawTransaction(txSigned).do();
+  const transactionResponse = await waitForConfirmation(algoD, txId, 5);
   const appId = transactionResponse["application-index"];
   console.log("Created router app: ", appId);
 
@@ -66,7 +66,7 @@ const createApp = async () => {
   });
   const transactions = [bootstrap, appBootstrap];
   assignGroupID(transactions);
-  let bootstrapSigned = transactions.map((t) => signTransaction(t, account.sk));
+  const bootstrapSigned = transactions.map((t) => signTransaction(t, account.sk));
   await algoD.sendRawTransaction(bootstrapSigned.map((t) => t.blob)).do();
 };
 

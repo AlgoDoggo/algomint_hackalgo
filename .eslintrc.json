@@ -1,0 +1,31 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true,
+    "mocha": true,
+    "mongo": true
+  },
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:import/typescript", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "import"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.eslint.json"
+  },
+  "rules": {
+    "import/extensions": ["warn", "ignorePackages"],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn"],
+    "no-redeclare": "off",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["warn"],
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-empty-pattern": "off",
+    "@typescript-eslint/no-empty-pattern": "off",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off"
+  },
+  "ignorePatterns": ["dist/", "test/", "contracts/"]
+}

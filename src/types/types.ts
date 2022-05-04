@@ -33,8 +33,6 @@ export type RouterSwap = {
   slippage: number;
 };
 
-export type AppGlobalState = {};
-
 export type AlgoFiResult = {
   id: number;
   asset_1: number;

@@ -9,7 +9,7 @@ import { routerApp } from "./constants/constants.js";
 import makeUserOptIn from "./makeUserOptIn.js";
 
 class Router {
-  asset1: number = 0;
+  asset1 = 0;
   asset2: number;
   mnemo: string;
   tinyman: TinyProps;
@@ -61,7 +61,7 @@ class Router {
     // if router contract hasn't opted-in the asset, it needs to
     if (this.routerOptInA1 === false || this.routerOptInA2 === false) {
       console.log("The router needs to opt-in the swapped assets");
-      let assets: number[] = [];
+      const assets: number[] = [];
       if (this.routerOptInA1 === false) assets.push(this.asset1);
       if (this.routerOptInA2 === false) assets.push(this.asset2);
       await makeRouterOptIn(assets, this.mnemo);
@@ -72,7 +72,7 @@ class Router {
     // if user hasn't opted-in the assets or the tiny app, it needs to
     if (!this.userOptInA1 || !this.userOptInA2 || !this.userOptInTiny) {
       console.log("The user needs to opt-in the swapped assets");
-      let assets: number[] = [];
+      const assets: number[] = [];
       if (!this.userOptInA1) assets.push(this.asset1);
       if (!this.userOptInA2) assets.push(this.asset2);
       if (!this.userOptInTiny) {

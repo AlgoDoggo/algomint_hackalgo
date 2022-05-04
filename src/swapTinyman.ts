@@ -93,7 +93,7 @@ export const swapTinyman = async ({
   const t3 = signLogicSigTransactionObject(tx3, lsig);
   await algoD.sendRawTransaction([t0, t1.blob, t2, t3.blob]).do();
   const transactionResponse = await waitForConfirmation(algoD, t3.txID, 5);
-  const { aamt: amountOut, amt: algoOut, xaid } = transactionResponse?.txn?.txn;
+  const { aamt: amountOut, amt: algoOut, xaid } = transactionResponse.txn.txn;
   console.log(
     `Swapped ${amount} ${assetIn === 0 ? "microAlgos" : `of asset n° ${assetIn}`} for ${amountOut ?? algoOut} ${
       xaid ? `token n°${xaid}` : "microAlgos"
