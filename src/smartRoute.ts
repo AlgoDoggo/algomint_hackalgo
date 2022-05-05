@@ -112,32 +112,32 @@ const smartRoute: smartRoute = async ({ amount, assetIn, assetOut, tinyman, algo
     );
     console.log(`${logs[0]} quote: ${logs[1]}, ${logs[2]} quote: ${logs[3]}, ${logs[4]} quote: ${logs[5]}`);
     console.log(logs[6]);
-    if (logs[6].slice(17) == "Tinyman") {
+    if (logs[6].slice(17) == "Tinyman" && tinyman) {
       await swapTinyman({
         assetIn,
         amount,
         suggestedParams,
-        tinyPool: tinyman?.pool!,
+        tinyPool: tinyman.pool,
         assetOut,
-        tinyLT: tinyman?.lt!,
+        tinyLT: tinyman.lt,
         minAmountOut: Math.floor((logs[1] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (logs[6].slice(17) == "Algofi") {
+    } else if (logs[6].slice(17) == "Algofi" && algofi) {
       await swapAlgofi({
         assetIn,
         amount,
-        app: algofi?.app!,
+        app: algofi.app,
         suggestedParams,
         assetOut,
         minAmountOut: Math.floor((logs[3] * (10000 - slippage)) / 10000),
         mnemo,
       });
-    } else if (logs[6].slice(17) == "Pactfi") {
+    } else if (logs[6].slice(17) == "Pactfi" && pactfi) {
       await swapPactfi({
         assetIn,
         amount,
-        app: pactfi?.app!,
+        app: pactfi.app,
         suggestedParams,
         assetOut,
         minAmountOut: Math.floor((logs[5] * (10000 - slippage)) / 10000),
